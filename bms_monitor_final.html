@@ -1,0 +1,2692 @@
+<!DOCTYPE html>
+<html lang="ro">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>Consolă Monitorizare JKBMS</title>
+
+<style>
+
+/* =========================================================
+   PAGINA
+   ========================================================= */
+
+body {
+  background-color: #0c0c0c;
+  color: #e0e0e0;
+  margin: 0;
+  padding: 6px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.bms-container {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.main-title {
+  font-size: 18px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 9px;
+  text-align: center;
+  color: #2196F3;
+}
+
+
+/* =========================================================
+   BUTOANE PAGINI
+   ========================================================= */
+
+.page-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 9px;
+}
+
+.page-button {
+  background: #161616;
+  color: #777;
+  border: 1px solid #292929;
+  border-radius: 8px;
+  padding: 9px 6px;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.page-button.active {
+  background: #2196F3;
+  color: #fff;
+  border-color: #2196F3;
+}
+
+
+/* =========================================================
+   PAGINI
+   ========================================================= */
+
+.console-page {
+  display: none;
+}
+
+.console-page.active {
+  display: block;
+}
+
+
+/* =========================================================
+   CADRAN BATERIE
+   ========================================================= */
+
+.dashboard-gauge {
+  background: #161616;
+  border: 1px solid #222;
+  border-radius: 12px;
+  padding: 10px 10px 12px 10px;
+  margin-bottom: 9px;
+  text-align: center;
+}
+
+.gauge-title {
+  font-size: 12px;
+  color: #777;
+  letter-spacing: 1px;
+  margin-bottom: 2px;
+}
+
+.gauge {
+  width: 210px;
+  height: 210px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.gauge-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.gauge-track,
+.gauge-progress {
+  fill: none;
+  stroke-width: 13;
+}
+
+.gauge-track {
+  stroke: #292929;
+}
+
+.gauge-progress {
+  stroke: #00E676;
+  stroke-linecap: round;
+
+  stroke-dasharray: 565.48;
+  stroke-dashoffset: 565.48;
+
+  transition:
+    stroke-dashoffset 0.5s ease,
+    stroke 0.4s ease;
+}
+
+.gauge-center {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  text-align: center;
+}
+
+.gauge-soc {
+  font-size: 48px;
+  line-height: 1;
+  font-weight: bold;
+  color: #00E676;
+
+  transition:
+    color 0.4s ease;
+}
+
+.gauge-label {
+  font-size: 12px;
+  color: #777;
+  margin-top: 5px;
+  letter-spacing: 1px;
+}
+
+.gauge-prag {
+  font-size: 11px;
+  color: #777;
+  margin-top: 9px;
+}
+
+.gauge-values {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+  margin-top: 4px;
+}
+
+.gauge-value-box {
+  background: #111;
+  border-radius: 6px;
+  padding: 7px 3px;
+}
+
+.gauge-value-box span {
+  display: block;
+  font-size: 9px;
+  color: #666;
+}
+
+.gauge-value-box b {
+  display: block;
+  font-size: 15px;
+  color: #ddd;
+  margin-top: 2px;
+}
+
+
+/* =========================================================
+   PARAMETRI SISTEM
+   ========================================================= */
+
+.system-meta {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 5px;
+  margin-bottom: 9px;
+  background: #141414;
+  padding: 7px 10px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.meta-item {
+  padding: 2px 0;
+  color: #aaa;
+}
+
+.meta-item b {
+  color: #fff;
+  float: right;
+}
+
+
+/* =========================================================
+   ALARMA
+   ========================================================= */
+
+#alarm-banner {
+  display: none;
+  background: #b71c1c;
+  color: #fff;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  font-weight: bold;
+  text-align: center;
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   CELULE
+   ========================================================= */
+
+.grid-title {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 15px 0 8px 0;
+  color: #666;
+  border-bottom: 1px solid #222;
+  padding-bottom: 4px;
+}
+
+.cells-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.cell-box {
+  background: #161616;
+  padding: 8px;
+  border-radius: 6px;
+  text-align: center;
+  border-top: 4px solid #555;
+  font-size: 11px;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.cell-box b {
+  display: block;
+  font-size: 15px;
+  margin-top: 2px;
+  color: #fff;
+}
+
+.cell-min {
+  border-top-color: #f44336 !important;
+}
+
+.cell-max {
+  border-top-color: #00e676 !important;
+}
+
+.cell-normal {
+  border-top-color: #666 !important;
+}
+/* =========================================================
+   HEADER BMS - PAGINA CONTROL
+   ========================================================= */
+
+.bms-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.status-card {
+  background: #161616;
+  border: 1px solid #292929;
+  border-radius: 10px;
+  padding: 10px 8px;
+  text-align: center;
+}
+
+.status-card label {
+  display: block;
+  font-size: 10px;
+  color: #777;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.status-card span {
+  display: block;
+  font-size: 28px;
+  line-height: 1.1;
+  font-weight: bold;
+  color: #00E676;
+}
+
+
+/* =========================================================
+   ZONA CONTROL
+   ========================================================= */
+
+.control-title {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 18px 0 8px 0;
+  color: #666;
+  border-bottom: 1px solid #222;
+  padding-bottom: 4px;
+}
+
+
+/* =========================================================
+   CUTII CONTROL
+   ========================================================= */
+
+.control-box {
+  background: #161616;
+  border: 1px solid #222;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.control-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 9px;
+}
+
+.control-name {
+  font-size: 13px;
+  font-weight: bold;
+  color: #ddd;
+}
+
+.control-value {
+  font-size: 13px;
+  font-weight: bold;
+  color: #aaa;
+}
+
+
+/* =========================================================
+   SLIDERE LUNGI
+   ========================================================= */
+
+.range-wrap {
+  width: 100%;
+  position: relative;
+}
+
+.long-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 12px;
+  border-radius: 8px;
+  background: #333;
+  outline: none;
+  cursor: pointer;
+  margin: 5px 0;
+}
+
+.long-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #888;
+  border: 3px solid #111;
+  box-shadow: 0 0 0 1px #777;
+  cursor: pointer;
+}
+
+.long-slider::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #888;
+  border: 3px solid #111;
+  box-shadow: 0 0 0 1px #777;
+  cursor: pointer;
+}
+
+.long-slider.enabled::-webkit-slider-thumb {
+  background: #2196F3;
+}
+
+.long-slider.enabled::-moz-range-thumb {
+  background: #2196F3;
+}
+
+.long-slider:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.long-slider:disabled::-webkit-slider-thumb {
+  cursor: not-allowed;
+}
+
+.long-slider:disabled::-moz-range-thumb {
+  cursor: not-allowed;
+}
+
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #777;
+  margin-top: 2px;
+}
+
+.slider-status {
+  text-align: center;
+  font-size: 12px;
+  color: #888;
+  margin-top: 7px;
+  min-height: 16px;
+}
+
+
+/* =========================================================
+   STATUS RELEU ATS
+   ========================================================= */
+
+.ats-state {
+  text-align: center;
+  background: #141414;
+  border: 1px solid #222;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.ats-state-label {
+  font-size: 12px;
+  color: #777;
+  text-transform: uppercase;
+}
+
+.ats-state-value {
+  font-size: 20px;
+  font-weight: bold;
+  margin-top: 4px;
+  color: #888;
+}
+
+
+/* =========================================================
+   STATUS RETEA / MQTT
+   ========================================================= */
+
+.net-status {
+  text-align: center;
+  font-size: 11px;
+  color: #555;
+  margin-top: 20px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="bms-container">
+
+
+<div class="main-title">
+  Monitorizare Solară Live
+</div>
+
+
+<!-- =====================================================
+     BUTOANE PAGINI
+     ===================================================== -->
+
+<div class="page-buttons">
+
+  <button
+    id="btn-page-monitor"
+    class="page-button active"
+    onclick="schimbaPagina('monitor')">
+    MONITORIZARE
+  </button>
+
+  <button
+    id="btn-page-control"
+    class="page-button"
+    onclick="schimbaPagina('control')">
+    CONTROL
+  </button>
+
+</div>
+
+
+<!-- =====================================================
+     PAGINA 1 - MONITORIZARE
+     ===================================================== -->
+
+<div
+  id="page-monitor"
+  class="console-page active">
+
+
+  <!-- ===================================================
+       ALARMA
+       =================================================== -->
+
+  <div id="alarm-banner">
+
+    ⚠️ STATUS / ALARMĂ:
+
+    <span id="alarm-text">
+      -
+    </span>
+
+  </div>
+
+
+  <!-- ===================================================
+       CADRAN PRINCIPAL
+       =================================================== -->
+
+  <div class="dashboard-gauge">
+
+    <div class="gauge-title">
+      NIVEL BATERIE
+    </div>
+
+
+    <div class="gauge">
+
+      <svg
+        class="gauge-svg"
+        viewBox="0 0 200 200">
+
+        <!-- ARC FUNDAL -->
+
+        <circle
+          class="gauge-track"
+          cx="100"
+          cy="100"
+          r="90">
+        </circle>
+
+
+        <!-- ARC SOC -->
+
+        <circle
+          id="gauge-arc"
+          class="gauge-progress"
+          cx="100"
+          cy="100"
+          r="90">
+        </circle>
+
+      </svg>
+
+
+      <div class="gauge-center">
+
+        <div
+          id="gauge-soc"
+          class="gauge-soc">
+          -
+        </div>
+
+        <div class="gauge-label">
+          SOC
+        </div>
+
+        <div
+          id="gauge-prag"
+          class="gauge-prag">
+          ATS PRAG 22%
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- VALORI V / A / W -->
+
+    <div class="gauge-values">
+
+      <div class="gauge-value-box">
+
+        <span>
+          TENSIUNE
+        </span>
+
+        <b id="gauge-voltage">
+          -
+        </b>
+
+      </div>
+
+
+      <div class="gauge-value-box">
+
+        <span>
+          CURENT
+        </span>
+
+        <b id="gauge-current">
+          -
+        </b>
+
+      </div>
+
+
+      <div class="gauge-value-box">
+
+        <span>
+          PUTERE
+        </span>
+
+        <b id="gauge-power">
+          -
+        </b>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ===================================================
+       VALORI ORIGINALE
+       PASTRATE INVIZIBIL PENTRU LOGICA EXISTENTA
+       =================================================== -->
+
+  <div style="display:none;">
+
+    <span id="main-soc">-</span>
+    <span id="main-v">-</span>
+    <span id="main-a">-</span>
+    <span id="main-p">-</span>
+
+  </div>
+
+
+  <!-- ===================================================
+       PARAMETRI SISTEM
+       =================================================== -->
+
+  <div class="grid-title">
+    Parametri Sistem
+  </div>
+
+
+  <div class="system-meta">
+
+    <div class="meta-item">
+
+      Delta Celule:
+
+      <b id="meta-d">
+        - mV
+      </b>
+
+    </div>
+
+
+    <div class="meta-item">
+
+      Timp Rămas:
+
+      <b id="meta-t">
+        -
+      </b>
+
+    </div>
+
+
+    <div class="meta-item">
+
+      Stare ATS:
+
+      <b id="meta-ats">
+        -
+      </b>
+
+    </div>
+
+
+    <div class="meta-item">
+
+      BMS Bluetooth:
+
+      <b id="meta-bt">
+        -
+      </b>
+
+    </div>
+
+  </div>
+
+
+  <!-- ===================================================
+       CELULE
+       =================================================== -->
+
+  <div class="grid-title">
+    Tensiuni Celule (C1 - C16)
+  </div>
+
+
+  <div
+    id="cells-matrix"
+    class="cells-grid">
+  </div>
+
+</div>
+
+
+<!-- =====================================================
+     PAGINA 2 - CONTROL
+     ===================================================== -->
+
+<div
+  id="page-control"
+  class="console-page">
+
+
+  <!-- SOC + TENSIUNE REPETATE -->
+
+  <div class="bms-header">
+
+    <div class="status-card">
+
+      <label>
+        SOC
+      </label>
+
+      <span id="control-soc">
+        -
+      </span>
+
+    </div>
+
+
+    <div class="status-card">
+
+      <label>
+        Tensiune
+      </label>
+
+      <span id="control-v">
+        -
+      </span>
+
+    </div>
+
+  </div>
+
+
+  <!-- ===================================================
+       CONTROL MOSFET
+       =================================================== -->
+
+  <div class="control-title">
+    Control MOSFET
+  </div>
+
+
+  <!-- CHG -->
+
+  <div class="control-box">
+
+    <div class="control-header">
+
+      <div class="control-name">
+        CHG
+      </div>
+
+      <div
+        class="control-value"
+        id="val-chg">
+        Așteptare...
+      </div>
+
+    </div>
+
+
+    <div class="range-wrap">
+
+      <input
+        type="range"
+        id="slider-chg"
+        class="long-slider"
+        min="0"
+        max="1"
+        step="1"
+        value="0"
+        disabled
+        oninput="comutaSliderRange('chg')"
+      >
+
+
+      <div class="slider-labels">
+
+        <span>
+          OPRIT
+        </span>
+
+        <span>
+          PORNIT
+        </span>
+
+      </div>
+
+
+      <div
+        class="slider-status"
+        id="status-chg">
+
+        Așteptare confirmare...
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- DSG -->
+
+  <div class="control-box">
+
+    <div class="control-header">
+
+      <div class="control-name">
+        DSG
+      </div>
+
+      <div
+        class="control-value"
+        id="val-dsg">
+        Așteptare...
+      </div>
+
+    </div>
+
+
+    <div class="range-wrap">
+
+      <input
+        type="range"
+        id="slider-dsg"
+        class="long-slider"
+        min="0"
+        max="1"
+        step="1"
+        value="0"
+        disabled
+        oninput="comutaSliderRange('dsg')"
+      >
+
+
+      <div class="slider-labels">
+
+        <span>
+          OPRIT
+        </span>
+
+        <span>
+          PORNIT
+        </span>
+
+      </div>
+
+
+      <div
+        class="slider-status"
+        id="status-dsg">
+
+        Așteptare confirmare...
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ===================================================
+       CONTROL ATS
+       =================================================== -->
+
+  <div class="control-title">
+    Control ATS
+  </div>
+
+
+  <!-- STARE ATS -->
+
+  <div class="ats-state">
+
+    <div class="ats-state-label">
+      Stare ATS confirmată
+    </div>
+
+    <div
+      class="ats-state-value"
+      id="ats-state-value">
+
+      Așteptare...
+
+    </div>
+
+  </div>
+
+
+  <!-- ATS MANUAL -->
+
+  <div class="control-box">
+
+    <div class="control-header">
+
+      <div class="control-name">
+        ATS MANUAL
+      </div>
+
+      <div
+        class="control-value"
+        id="val-ats-manual">
+
+        Așteptare...
+
+      </div>
+
+    </div>
+
+
+    <div class="range-wrap">
+
+      <input
+        type="range"
+        id="slider-ats-manual"
+        class="long-slider"
+        min="0"
+        max="1"
+        step="1"
+        value="0"
+        disabled
+        oninput="comutaSliderRange('ats_manual')"
+      >
+
+
+      <div class="slider-labels">
+
+        <span>
+          AUTO
+        </span>
+
+        <span>
+          REȚEA
+        </span>
+
+      </div>
+
+
+      <div
+        class="slider-status"
+        id="status-ats-manual">
+
+        Așteptare confirmare...
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ATS PRAG -->
+
+  <div class="control-box">
+
+    <div class="control-header">
+
+      <div class="control-name">
+        ATS PRAG
+      </div>
+
+      <div
+        class="control-value"
+        id="val-ats-prag">
+
+        22%
+
+      </div>
+
+    </div>
+
+
+    <div class="range-wrap">
+
+      <input
+        type="range"
+        id="slider-ats-prag"
+        class="long-slider"
+        min="15"
+        max="30"
+        step="1"
+        value="22"
+        disabled
+        oninput="afiseazaPragATS()"
+        onchange="trimitePragATS()"
+      >
+
+
+      <div class="slider-labels">
+
+        <span>
+          15%
+        </span>
+
+        <span>
+          30%
+        </span>
+
+      </div>
+
+
+      <div
+        class="slider-status"
+        id="status-ats-prag">
+
+        Așteptare confirmare...
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- STATUS MQTT -->
+
+  <div
+    class="net-status"
+    id="net-label">
+
+    Se conectează la cloud...
+
+  </div>
+
+</div>
+
+
+</div>
+
+
+<!-- =====================================================
+     AICI SE TERMINĂ P1
+     ===================================================== -->
+
+<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+<!-- =========================
+     P2 - JAVASCRIPT MQTT
+     ========================= -->
+
+<script>
+
+/* =========================================================
+   CONFIGURARE ADAFRUIT IO
+   ========================================================= */
+
+const USERNAME = "reddan06";
+
+/*
+   IMPORTANT:
+   PASTREAZA AICI LINIA AIO_KEY DIN FISIERUL TAU VECHI.
+   NU SCHIMBA CHEIA.
+*/
+
+const AIO_KEY = "CHEIA_MEA";
+
+
+/* =========================================================
+   TOPICURI
+   ========================================================= */
+
+const TOPIC = "reddan06/feeds/date_bms";
+const TOPIC_CHG = "reddan06/feeds/chg";
+const TOPIC_DSG = "reddan06/feeds/dsg";
+const TOPIC_ATS_PRAG = "reddan06/feeds/ats_prag";
+const TOPIC_ATS_MANUAL = "reddan06/feeds/ats_manual";
+const TOPIC_STARE_ATS = "reddan06/feeds/stare_ats";
+
+
+/* =========================================================
+   STARI CONFIRMATE
+   ========================================================= */
+
+let chgConfirmat = false;
+let dsgConfirmat = false;
+let atsPragConfirmat = false;
+let atsManualConfirmat = false;
+
+
+/* =========================================================
+   ASTEPTARE CONFIRMARE
+   ========================================================= */
+
+let chgAsteaptaConfirmare = false;
+let dsgAsteaptaConfirmare = false;
+let atsPragAsteaptaConfirmare = false;
+let atsManualAsteaptaConfirmare = false;
+
+
+/* =========================================================
+   VALORI CURENTE
+   ========================================================= */
+
+let valoareCHG = 0;
+let valoareDSG = 0;
+let valoareATSManual = 0;
+let valoareATSPrag = 22;
+
+
+/* =========================================================
+   SCHIMBARE PAGINA
+   ========================================================= */
+
+function schimbaPagina(pagina) {
+
+  const monitor =
+    document.getElementById("page-monitor");
+
+  const control =
+    document.getElementById("page-control");
+
+  const btnMonitor =
+    document.getElementById("btn-page-monitor");
+
+  const btnControl =
+    document.getElementById("btn-page-control");
+
+
+  if (pagina === "monitor") {
+
+    monitor.classList.add("active");
+    control.classList.remove("active");
+
+    btnMonitor.classList.add("active");
+    btnControl.classList.remove("active");
+
+  }
+
+  else if (pagina === "control") {
+
+    monitor.classList.remove("active");
+    control.classList.add("active");
+
+    btnMonitor.classList.remove("active");
+    btnControl.classList.add("active");
+
+  }
+
+}
+
+
+/* =========================================================
+   BROKER MQTT
+   ========================================================= */
+
+const brokerUrl =
+  "wss://io.adafruit.com:443/mqtt";
+
+
+const netLabel =
+  document.getElementById("net-label");
+
+
+netLabel.innerText =
+  "🟡 Se conectează la Adafruit IO...";
+
+
+netLabel.style.color =
+  "#FF9800";
+
+
+/* =========================================================
+   CONECTARE MQTT
+   ========================================================= */
+
+const client = mqtt.connect(
+  brokerUrl,
+  {
+    username: USERNAME,
+    password: AIO_KEY,
+    protocolVersion: 4,
+    reconnectPeriod: 5000,
+    connectTimeout: 10000,
+    clean: true
+  }
+);
+
+
+/* =========================================================
+   MQTT CONNECT
+   ========================================================= */
+
+client.on("connect", function () {
+
+  console.log(
+    "[MQTT] CONECTAT LA ADAFRUIT IO"
+  );
+
+
+  netLabel.innerText =
+    "🟢 MQTT conectat - aștept stările...";
+
+
+  netLabel.style.color =
+    "#00E676";
+
+
+  chgConfirmat = false;
+  dsgConfirmat = false;
+  atsPragConfirmat = false;
+  atsManualConfirmat = false;
+
+
+  chgAsteaptaConfirmare = false;
+  dsgAsteaptaConfirmare = false;
+  atsPragAsteaptaConfirmare = false;
+  atsManualAsteaptaConfirmare = false;
+
+
+  document.getElementById(
+    "slider-chg"
+  ).disabled = true;
+
+
+  document.getElementById(
+    "slider-dsg"
+  ).disabled = true;
+
+
+  document.getElementById(
+    "slider-ats-manual"
+  ).disabled = true;
+
+
+  document.getElementById(
+    "slider-ats-prag"
+  ).disabled = true;
+
+
+  /* SUBSCRIBE BMS */
+
+  client.subscribe(
+    TOPIC,
+    function (err) {
+
+      if (err) {
+
+        console.error(
+          "[MQTT] EROARE SUBSCRIBE BMS:",
+          err
+        );
+
+      }
+
+      else {
+
+        console.log(
+          "[MQTT] SUBSCRIBE BMS OK"
+        );
+
+      }
+
+    }
+  );
+
+
+  /* SUBSCRIBE CHG */
+
+  client.subscribe(
+    TOPIC_CHG,
+    function (err) {
+
+      if (err) {
+
+        console.error(
+          "[MQTT] EROARE SUBSCRIBE CHG:",
+          err
+        );
+
+      }
+
+      else {
+
+        console.log(
+          "[MQTT] SUBSCRIBE CHG OK"
+        );
+
+      }
+
+    }
+  );
+
+
+  /* SUBSCRIBE DSG */
+
+  client.subscribe(
+    TOPIC_DSG,
+    function (err) {
+
+      if (err) {
+
+        console.error(
+          "[MQTT] EROARE SUBSCRIBE DSG:",
+          err
+        );
+
+      }
+
+      else {
+
+        console.log(
+          "[MQTT] SUBSCRIBE DSG OK"
+        );
+
+      }
+
+    }
+  );
+
+
+  /* SUBSCRIBE ATS PRAG */
+
+  client.subscribe(
+    TOPIC_ATS_PRAG,
+    function (err) {
+
+      if (err) {
+
+        console.error(
+          "[MQTT] EROARE SUBSCRIBE ATS PRAG:",
+          err
+        );
+
+      }
+
+      else {
+
+        console.log(
+          "[MQTT] SUBSCRIBE ATS PRAG OK"
+        );
+
+      }
+
+    }
+  );
+
+
+  /* SUBSCRIBE ATS MANUAL */
+
+  client.subscribe(
+    TOPIC_ATS_MANUAL,
+    function (err) {
+
+      if (err) {
+
+        console.error(
+          "[MQTT] EROARE SUBSCRIBE ATS MANUAL:",
+          err
+        );
+
+      }
+
+      else {
+
+        console.log(
+          "[MQTT] SUBSCRIBE ATS MANUAL OK"
+        );
+
+      }
+
+    }
+  );
+
+
+  /* SUBSCRIBE STARE ATS */
+
+  client.subscribe(
+    TOPIC_STARE_ATS,
+    function (err) {
+
+      if (err) {
+
+        console.error(
+          "[MQTT] EROARE SUBSCRIBE STARE ATS:",
+          err
+        );
+
+      }
+
+      else {
+
+        console.log(
+          "[MQTT] SUBSCRIBE STARE ATS OK"
+        );
+
+      }
+
+    }
+  );
+
+
+  /* CEREM VALORILE ACTUALE DUPA ABONARE */
+
+  setTimeout(function () {
+
+    client.publish(
+      TOPIC_ATS_PRAG + "/get",
+      "\0"
+    );
+
+
+    client.publish(
+      TOPIC_ATS_MANUAL + "/get",
+      "\0"
+    );
+
+
+    client.publish(
+      TOPIC_STARE_ATS + "/get",
+      "\0"
+    );
+
+
+    console.log(
+      "[MQTT] Am cerut valorile actuale ATS."
+    );
+
+  }, 500);
+
+});
+
+
+/* =========================================================
+   MESAJ MQTT
+   ========================================================= */
+
+client.on(
+  "message",
+  function (topic, message) {
+
+    const text =
+      message.toString().trim();
+
+
+    console.log(
+      "[MQTT] Topic:",
+      topic,
+      " Valoare:",
+      text
+    );
+
+
+    /* CHG */
+
+    if (topic === TOPIC_CHG) {
+
+      if (text === "0" || text === "1") {
+
+        valoareCHG =
+          parseInt(text);
+
+
+        const slider =
+          document.getElementById(
+            "slider-chg"
+          );
+
+
+        slider.value =
+          valoareCHG;
+
+
+        chgConfirmat = true;
+        chgAsteaptaConfirmare = false;
+
+
+        slider.disabled = false;
+
+
+        slider.classList.add(
+          "enabled"
+        );
+
+
+        document.getElementById(
+          "val-chg"
+        ).innerText =
+          valoareCHG === 1
+            ? "PORNIT"
+            : "OPRIT";
+
+
+        document.getElementById(
+          "status-chg"
+        ).innerText =
+          "Confirmat MQTT";
+
+      }
+
+      return;
+    }
+
+
+    /* DSG */
+
+    if (topic === TOPIC_DSG) {
+
+      if (text === "0" || text === "1") {
+
+        valoareDSG =
+          parseInt(text);
+
+
+        const slider =
+          document.getElementById(
+            "slider-dsg"
+          );
+
+
+        slider.value =
+          valoareDSG;
+
+
+        dsgConfirmat = true;
+        dsgAsteaptaConfirmare = false;
+
+
+        slider.disabled = false;
+
+
+        slider.classList.add(
+          "enabled"
+        );
+
+
+        document.getElementById(
+          "val-dsg"
+        ).innerText =
+          valoareDSG === 1
+            ? "PORNIT"
+            : "OPRIT";
+
+
+        document.getElementById(
+          "status-dsg"
+        ).innerText =
+          "Confirmat MQTT";
+
+      }
+
+      return;
+    }
+
+
+    /* ATS PRAG */
+
+    if (topic === TOPIC_ATS_PRAG) {
+
+      const prag =
+        parseInt(text);
+
+
+      if (
+        !isNaN(prag) &&
+        prag >= 15 &&
+        prag <= 30
+      ) {
+
+        valoareATSPrag =
+          prag;
+
+
+        const slider =
+          document.getElementById(
+            "slider-ats-prag"
+          );
+
+
+        slider.value =
+          prag;
+
+
+        document.getElementById(
+          "val-ats-prag"
+        ).innerText =
+          prag + "%";
+
+
+        atsPragConfirmat = true;
+        atsPragAsteaptaConfirmare = false;
+
+
+        slider.disabled = false;
+
+
+        slider.classList.add(
+          "enabled"
+        );
+
+
+        document.getElementById(
+          "status-ats-prag"
+        ).innerText =
+          "Confirmat MQTT";
+
+      }
+
+      return;
+    }
+
+
+    /* ATS MANUAL */
+
+    if (topic === TOPIC_ATS_MANUAL) {
+
+      if (text === "0" || text === "1") {
+
+        valoareATSManual =
+          parseInt(text);
+
+
+        const slider =
+          document.getElementById(
+            "slider-ats-manual"
+          );
+
+
+        slider.value =
+          valoareATSManual;
+
+
+        atsManualConfirmat = true;
+        atsManualAsteaptaConfirmare = false;
+
+
+        slider.disabled = false;
+
+
+        slider.classList.add(
+          "enabled"
+        );
+
+
+        document.getElementById(
+          "val-ats-manual"
+        ).innerText =
+          valoareATSManual === 1
+            ? "REȚEA"
+            : "AUTO";
+
+
+        document.getElementById(
+          "status-ats-manual"
+        ).innerText =
+          "Confirmat MQTT";
+
+      }
+
+      return;
+    }
+
+
+    /* STARE ATS */
+
+    if (topic === TOPIC_STARE_ATS) {
+
+      const stare =
+        text.toUpperCase();
+
+
+      const stareElement =
+        document.getElementById(
+          "ats-state-value"
+        );
+
+
+      if (stare === "SOLAR") {
+
+        stareElement.innerText =
+          "☀️ SOLAR";
+
+
+        stareElement.style.color =
+          "#00E676";
+
+      }
+
+      else if (stare === "RETEA") {
+
+        stareElement.innerText =
+          "🔌 RETEA";
+
+
+        stareElement.style.color =
+          "#4CAF50";
+
+      }
+
+      else {
+
+        stareElement.innerText =
+          stare;
+
+
+        stareElement.style.color =
+          "#FF9800";
+
+      }
+
+
+      document.getElementById(
+        "meta-ats"
+      ).innerText =
+        stare;
+
+
+      return;
+    }
+
+
+    /* =====================================================
+       BMS
+       ===================================================== */
+
+    if (topic !== TOPIC) {
+      return;
+    }
+
+
+    try {
+
+      const bms =
+        JSON.parse(text);
+
+
+      console.log(
+        "[BMS] JSON:",
+        bms
+      );
+
+
+/* ===================================================
+   SOC - CADRAN
+   =================================================== */
+
+if (bms.soc !== undefined) {
+
+  const soc =
+    parseFloat(bms.soc);
+
+  document.getElementById(
+    "main-soc"
+  ).innerText =
+    soc + "%";
+
+  document.getElementById(
+    "control-soc"
+  ).innerText =
+    soc + "%";
+
+
+  /* =================================================
+     ACTUALIZARE CADRAN
+     ================================================= */
+
+  const gaugeValue =
+    document.getElementById(
+      "gauge-soc"
+    );
+
+  const gaugeArc =
+    document.getElementById(
+      "gauge-arc"
+    );
+
+  const gaugePrag =
+    document.getElementById(
+      "gauge-prag"
+    );
+
+
+  if (
+    gaugeValue &&
+    gaugeArc
+  ) {
+
+    gaugeValue.innerText =
+      soc + "%";
+
+
+    /*
+       0%  -> 0
+       100% -> 100
+    */
+
+    const procent =
+      Math.max(
+        0,
+        Math.min(
+          100,
+          soc
+        )
+      );
+
+
+    /*
+       Lungimea arcului.
+       Valoarea trebuie să corespundă
+       cercului definit în CSS/SVG.
+    */
+
+    const circumferinta =
+      565.48;
+
+
+    const offset =
+      circumferinta -
+      (
+        procent / 100
+      ) * circumferinta;
+
+
+    gaugeArc.style.strokeDashoffset =
+      offset;
+
+
+    /* ===============================================
+       PRAG ATS
+       =============================================== */
+
+    const prag =
+      parseFloat(
+        valoareATSPrag
+      );
+
+
+    if (
+      gaugePrag
+    ) {
+
+      gaugePrag.innerText =
+        "ATS PRAG " +
+        prag +
+        "%";
+
+    }
+
+
+    /* ===============================================
+       CULOAREA CADRANULUI
+       =============================================== */
+
+    let culoare =
+      "#00E676";
+
+
+    if (
+      soc < prag
+    ) {
+
+      /* SUB PRAG */
+
+      culoare =
+        "#F44336";
+
+    }
+
+    else if (
+      soc < 30
+    ) {
+
+      /* ZONA DE ATENTIE */
+
+      culoare =
+        "#FF9800";
+
+    }
+
+    else {
+
+      /* ZONA NORMALA */
+
+      culoare =
+        "#00E676";
+
+    }
+
+
+    gaugeArc.style.stroke =
+      culoare;
+
+
+    gaugeValue.style.color =
+      culoare;
+
+  }
+
+}
+
+
+/* ===================================================
+   TENSIUNE
+   =================================================== */
+
+if (bms.v !== undefined) {
+
+  const tensiune =
+    parseFloat(
+      bms.v
+    ).toFixed(1) + "V";
+
+
+  document.getElementById(
+    "main-v"
+  ).innerText =
+    tensiune;
+
+
+  document.getElementById(
+    "control-v"
+  ).innerText =
+    tensiune;
+
+
+  /* CADRAN */
+
+  const gaugeVoltage =
+    document.getElementById(
+      "gauge-voltage"
+    );
+
+
+  if (
+    gaugeVoltage
+  ) {
+
+    gaugeVoltage.innerText =
+      tensiune;
+
+  }
+
+}
+
+
+/* ===================================================
+   CURENT
+   =================================================== */
+
+if (bms.a !== undefined) {
+
+  const curent =
+    parseFloat(
+      bms.a
+    ).toFixed(2) + "A";
+
+
+  document.getElementById(
+    "main-a"
+  ).innerText =
+    curent;
+
+
+  const gaugeCurrent =
+    document.getElementById(
+      "gauge-current"
+    );
+
+
+  if (
+    gaugeCurrent
+  ) {
+
+    gaugeCurrent.innerText =
+      curent;
+
+  }
+
+}
+
+
+/* ===================================================
+   PUTERE
+   =================================================== */
+
+if (bms.p !== undefined) {
+
+  const putere =
+    bms.p + "W";
+
+
+  document.getElementById(
+    "main-p"
+  ).innerText =
+    putere;
+
+
+  const gaugePower =
+    document.getElementById(
+      "gauge-power"
+    );
+
+
+  if (
+    gaugePower
+  ) {
+
+    gaugePower.innerText =
+      putere;
+
+  }
+
+}
+
+      /* ===================================================
+         DELTA
+         =================================================== */
+
+      if (bms.d !== undefined) {
+
+        document.getElementById(
+          "meta-d"
+        ).innerText =
+          bms.d + " mV";
+      }
+
+
+      /* ===================================================
+         TIMP RAMAS
+         =================================================== */
+
+      if (bms.t !== undefined) {
+
+        document.getElementById(
+          "meta-t"
+        ).innerText =
+          bms.t;
+      }
+
+
+      /* ===================================================
+         ATS
+         =================================================== */
+
+      if (
+        bms.ats !== undefined &&
+        bms.ats !== "BOOT"
+      ) {
+
+        document.getElementById(
+          "meta-ats"
+        ).innerText =
+          bms.ats;
+      }
+
+
+      /* ===================================================
+         BLUETOOTH
+         =================================================== */
+
+      if (bms.bt !== undefined) {
+
+        document.getElementById(
+          "meta-bt"
+        ).innerText =
+          bms.bt
+            ? "ON"
+            : "OFF";
+      }
+
+
+      /* ===================================================
+         ALARMA
+         =================================================== */
+
+      const alarmBanner =
+        document.getElementById(
+          "alarm-banner"
+        );
+
+
+      const alarmText =
+        document.getElementById(
+          "alarm-text"
+        );
+
+
+      if (
+        bms.err &&
+        bms.err !== ""
+      ) {
+
+        alarmText.innerText =
+          bms.err;
+
+
+        alarmBanner.style.display =
+          "block";
+      }
+
+      else {
+
+        alarmBanner.style.display =
+          "none";
+      }
+
+
+      /* ===================================================
+         CELULE - CULORI RELATIVE
+         =================================================== */
+
+      if (
+        Array.isArray(bms.c) &&
+        bms.c.length > 0
+      ) {
+
+        const celule =
+          bms.c.map(
+            function (valoare) {
+
+              return parseFloat(
+                valoare
+              );
+
+            }
+          );
+
+
+        const valoriValide =
+          celule.filter(
+            function (valoare) {
+
+              return !isNaN(
+                valoare
+              );
+
+            }
+          );
+
+
+        if (
+          valoriValide.length > 0
+        ) {
+
+          const minim =
+            Math.min(
+              ...valoriValide
+            );
+
+
+          const maxim =
+            Math.max(
+              ...valoriValide
+            );
+
+
+          let matrixHtml = "";
+
+
+          celule.forEach(
+            function (
+              valoare,
+              index
+            ) {
+
+              let clasa =
+                "cell-normal";
+
+
+              if (!isNaN(valoare)) {
+
+                if (
+                  valoare === maxim &&
+                  maxim !== minim
+                ) {
+
+                  clasa =
+                    "cell-max";
+
+                }
+
+                else if (
+                  valoare === minim &&
+                  maxim !== minim
+                ) {
+
+                  clasa =
+                    "cell-min";
+
+                }
+
+              }
+
+
+              matrixHtml +=
+                '<div class="cell-box ' +
+                clasa +
+                '">' +
+                'C' +
+                (index + 1) +
+                '<b>' +
+                (
+                  isNaN(valoare)
+                    ? "-"
+                    : valoare.toFixed(3) + " V"
+                ) +
+                '</b>' +
+                '</div>';
+
+            }
+          );
+
+
+          document.getElementById(
+            "cells-matrix"
+          ).innerHTML =
+            matrixHtml;
+
+        }
+
+      }
+
+    }
+
+    catch (error) {
+
+      console.error(
+        "[BMS] Eroare JSON:",
+        error
+      );
+
+    }
+
+  }
+);
+/* =========================================================
+   FUNCTII SLIDERE
+   ========================================================= */
+
+
+/* =========================================================
+   CHG / DSG / ATS MANUAL
+   ========================================================= */
+
+function comutaSliderRange(tip) {
+
+  let slider;
+  let topic;
+
+
+  if (tip === "chg") {
+
+    slider =
+      document.getElementById(
+        "slider-chg"
+      );
+
+    topic =
+      TOPIC_CHG;
+
+  }
+
+
+  else if (tip === "dsg") {
+
+    slider =
+      document.getElementById(
+        "slider-dsg"
+      );
+
+    topic =
+      TOPIC_DSG;
+
+  }
+
+
+  else if (tip === "ats_manual") {
+
+    slider =
+      document.getElementById(
+        "slider-ats-manual"
+      );
+
+    topic =
+      TOPIC_ATS_MANUAL;
+
+  }
+
+
+  else {
+
+    return;
+
+  }
+
+
+  if (
+    !client ||
+    !client.connected
+  ) {
+
+    console.log(
+      "MQTT nu este conectat."
+    );
+
+    return;
+
+  }
+
+
+  const valoare =
+    slider.value;
+
+
+  slider.disabled =
+    true;
+
+
+  let status;
+  let valoareText;
+
+
+  if (tip === "chg") {
+
+    status =
+      document.getElementById(
+        "status-chg"
+      );
+
+    valoareText =
+      document.getElementById(
+        "val-chg"
+      );
+
+  }
+
+
+  else if (tip === "dsg") {
+
+    status =
+      document.getElementById(
+        "status-dsg"
+      );
+
+    valoareText =
+      document.getElementById(
+        "val-dsg"
+      );
+
+  }
+
+
+  else {
+
+    status =
+      document.getElementById(
+        "status-ats-manual"
+      );
+
+    valoareText =
+      document.getElementById(
+        "val-ats-manual"
+      );
+
+  }
+
+
+  status.textContent =
+    "Se trimite comanda...";
+
+
+  valoareText.textContent =
+    "În așteptare...";
+
+
+  client.publish(
+    topic,
+    valoare,
+    {
+      qos: 0,
+      retain: false
+    },
+    function (error) {
+
+      if (error) {
+
+        console.log(
+          "Eroare publicare:",
+          error
+        );
+
+
+        status.textContent =
+          "Eroare la trimitere";
+
+
+        slider.disabled =
+          false;
+
+
+        return;
+
+      }
+
+
+      status.textContent =
+        "Aștept confirmarea...";
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   ATS PRAG - AFISARE
+   ========================================================= */
+
+function afiseazaPragATS() {
+
+  const slider =
+    document.getElementById(
+      "slider-ats-prag"
+    );
+
+
+  const valoare =
+    document.getElementById(
+      "val-ats-prag"
+    );
+
+
+  valoare.textContent =
+    slider.value + "%";
+
+}
+
+
+/* =========================================================
+   ATS PRAG - TRIMITERE
+   ========================================================= */
+
+function trimitePragATS() {
+
+  const slider =
+    document.getElementById(
+      "slider-ats-prag"
+    );
+
+
+  const status =
+    document.getElementById(
+      "status-ats-prag"
+    );
+
+
+  if (
+    !client ||
+    !client.connected
+  ) {
+
+    status.textContent =
+      "MQTT deconectat";
+
+    return;
+
+  }
+
+
+  const valoare =
+    slider.value;
+
+
+  slider.disabled =
+    true;
+
+
+  status.textContent =
+    "Se trimite pragul...";
+
+
+  client.publish(
+    TOPIC_ATS_PRAG,
+    valoare,
+    {
+      qos: 0,
+      retain: true
+    },
+    function (error) {
+
+      if (error) {
+
+        console.log(
+          "Eroare publicare prag:",
+          error
+        );
+
+
+        status.textContent =
+          "Eroare la trimitere";
+
+
+        slider.disabled =
+          false;
+
+
+        return;
+
+      }
+
+
+      status.textContent =
+        "Aștept confirmarea...";
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   BLOCARE SLIDERE
+   ========================================================= */
+
+function blocheazaSlidere() {
+
+  const ids = [
+
+    "slider-chg",
+    "slider-dsg",
+    "slider-ats-manual",
+    "slider-ats-prag"
+
+  ];
+
+
+  ids.forEach(
+    function (id) {
+
+      const slider =
+        document.getElementById(
+          id
+        );
+
+
+      if (slider) {
+
+        slider.disabled =
+          true;
+
+
+        slider.classList.remove(
+          "enabled"
+        );
+
+      }
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   MQTT ERROR
+   ========================================================= */
+
+client.on(
+  "error",
+  function (error) {
+
+    console.log(
+      "[MQTT] ERROR:",
+      error
+    );
+
+
+    document.getElementById(
+      "net-label"
+    ).textContent =
+      "Eroare conexiune MQTT";
+
+
+    blocheazaSlidere();
+
+  }
+);
+
+
+/* =========================================================
+   MQTT CLOSE
+   ========================================================= */
+
+client.on(
+  "close",
+  function () {
+
+    console.log(
+      "[MQTT] CLOSED"
+    );
+
+
+    document.getElementById(
+      "net-label"
+    ).textContent =
+      "MQTT deconectat";
+
+
+    blocheazaSlidere();
+
+  }
+);
+
+
+/* =========================================================
+   MQTT RECONNECT
+   ========================================================= */
+
+client.on(
+  "reconnect",
+  function () {
+
+    console.log(
+      "[MQTT] RECONNECT"
+    );
+
+
+    document.getElementById(
+      "net-label"
+    ).textContent =
+      "Reconectare MQTT...";
+
+  }
+);
+
+</script>
+
+</div>
+
+</body>
+
+</html>
