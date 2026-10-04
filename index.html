@@ -1400,19 +1400,20 @@ function blocheazaSlidere() {
 /* =========================================================
    ETICHETA RETEA
    ========================================================= */
-
 const netLabel =
   document.getElementById(
     "net-label"
   );
 
+if (netLabel) {
 
-netLabel.innerText =
-  "🔐 Așteaptă autentificarea...";
+  netLabel.innerText =
+    "🔐 Așteaptă autentificarea...";
 
+  netLabel.style.color =
+    "#FF9800";
 
-netLabel.style.color =
-  "#FF9800";
+}
 
 
 /* =========================================================
