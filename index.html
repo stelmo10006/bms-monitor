@@ -2664,12 +2664,15 @@ function pornesteMonitorizarea() {
   blocheazaSlidere();
 
 
-  netLabel.innerText =
-    "🟡 Se verifică accesul...";
+  if (netLabel) {
 
+    netLabel.innerText =
+      "🟡 Se verifică accesul...";
 
-  netLabel.style.color =
-    "#FF9800";
+    netLabel.style.color =
+      "#FF9800";
+
+  }
 
 
   citesteDateBMS();
