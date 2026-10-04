@@ -2037,9 +2037,9 @@ function proceseazaStareATS(text) {
 }
 
 
-/* =========================================================
-   PROCESARE BMS
-   ========================================================= */
+ /* =========================================================
+    PROCESARE BMS
+    ========================================================= */
 
 function proceseazaBMS(text) {
 
@@ -2069,16 +2069,30 @@ function proceseazaBMS(text) {
         );
 
 
-      document.getElementById(
-        "main-soc"
-      ).innerText =
-        soc + "%";
+      const mainSoc =
+        document.getElementById(
+          "main-soc"
+        );
+
+      if (mainSoc) {
+
+        mainSoc.innerText =
+          soc + "%";
+
+      }
 
 
-      document.getElementById(
-        "control-soc"
-      ).innerText =
-        soc + "%";
+      const controlSoc =
+        document.getElementById(
+          "control-soc"
+        );
+
+      if (controlSoc) {
+
+        controlSoc.innerText =
+          soc + "%";
+
+      }
 
 
       const gaugeValue =
@@ -2207,16 +2221,30 @@ function proceseazaBMS(text) {
         "V";
 
 
-      document.getElementById(
-        "main-v"
-      ).innerText =
-        tensiune;
+      const mainV =
+        document.getElementById(
+          "main-v"
+        );
+
+      if (mainV) {
+
+        mainV.innerText =
+          tensiune;
+
+      }
 
 
-      document.getElementById(
-        "control-v"
-      ).innerText =
-        tensiune;
+      const controlV =
+        document.getElementById(
+          "control-v"
+        );
+
+      if (controlV) {
+
+        controlV.innerText =
+          tensiune;
+
+      }
 
 
       const gaugeVoltage =
@@ -2252,10 +2280,17 @@ function proceseazaBMS(text) {
         "A";
 
 
-      document.getElementById(
-        "main-a"
-      ).innerText =
-        curent;
+      const mainA =
+        document.getElementById(
+          "main-a"
+        );
+
+      if (mainA) {
+
+        mainA.innerText =
+          curent;
+
+      }
 
 
       const gaugeCurrent =
@@ -2289,10 +2324,17 @@ function proceseazaBMS(text) {
         "W";
 
 
-      document.getElementById(
-        "main-p"
-      ).innerText =
-        putere;
+      const mainP =
+        document.getElementById(
+          "main-p"
+        );
+
+      if (mainP) {
+
+        mainP.innerText =
+          putere;
+
+      }
 
 
       const gaugePower =
@@ -2321,11 +2363,18 @@ function proceseazaBMS(text) {
       bms.d !== undefined
     ) {
 
-      document.getElementById(
-        "meta-d"
-      ).innerText =
-        bms.d +
-        " mV";
+      const metaD =
+        document.getElementById(
+          "meta-d"
+        );
+
+      if (metaD) {
+
+        metaD.innerText =
+          bms.d +
+          " mV";
+
+      }
 
     }
 
@@ -2338,10 +2387,17 @@ function proceseazaBMS(text) {
       bms.t !== undefined
     ) {
 
-      document.getElementById(
-        "meta-t"
-      ).innerText =
-        bms.t;
+      const metaT =
+        document.getElementById(
+          "meta-t"
+        );
+
+      if (metaT) {
+
+        metaT.innerText =
+          bms.t;
+
+      }
 
     }
 
@@ -2355,10 +2411,17 @@ function proceseazaBMS(text) {
       bms.ats !== "BOOT"
     ) {
 
-      document.getElementById(
-        "meta-ats"
-      ).innerText =
-        bms.ats;
+      const metaAts =
+        document.getElementById(
+          "meta-ats"
+        );
+
+      if (metaAts) {
+
+        metaAts.innerText =
+          bms.ats;
+
+      }
 
     }
 
@@ -2371,12 +2434,19 @@ function proceseazaBMS(text) {
       bms.bt !== undefined
     ) {
 
-      document.getElementById(
-        "meta-bt"
-      ).innerText =
-        bms.bt
-          ? "ON"
-          : "OFF";
+      const metaBt =
+        document.getElementById(
+          "meta-bt"
+        );
+
+      if (metaBt) {
+
+        metaBt.innerText =
+          bms.bt
+            ? "ON"
+            : "OFF";
+
+      }
 
     }
 
@@ -2402,19 +2472,31 @@ function proceseazaBMS(text) {
       bms.err !== ""
     ) {
 
-      alarmText.innerText =
-        bms.err;
+      if (alarmText) {
+
+        alarmText.innerText =
+          bms.err;
+
+      }
 
 
-      alarmBanner.style.display =
-        "block";
+      if (alarmBanner) {
+
+        alarmBanner.style.display =
+          "block";
+
+      }
 
     }
 
     else {
 
-      alarmBanner.style.display =
-        "none";
+      if (alarmBanner) {
+
+        alarmBanner.style.display =
+          "none";
+
+      }
 
     }
 
@@ -2529,10 +2611,17 @@ function proceseazaBMS(text) {
         );
 
 
-        document.getElementById(
-          "cells-matrix"
-        ).innerHTML =
-          matrixHtml;
+        const cellsMatrix =
+          document.getElementById(
+            "cells-matrix"
+          );
+
+        if (cellsMatrix) {
+
+          cellsMatrix.innerHTML =
+            matrixHtml;
+
+        }
 
       }
 
@@ -2550,7 +2639,6 @@ function proceseazaBMS(text) {
   }
 
 }
-
 
 /* =========================================================
    ACTUALIZARE CULOARE CADRAN
