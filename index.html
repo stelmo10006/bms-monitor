@@ -749,7 +749,217 @@ body {
   </div>
 
 </div>
+<!-- =====================================================
+     PAGINA 2 - CONTROL
+     ===================================================== -->
 
+<div
+  id="page-control"
+  class="console-page">
+
+  <!-- ===================================================
+       TITLU
+       =================================================== -->
+
+  <div class="control-title">
+    CONTROL BMS / ATS
+  </div>
+
+
+  <!-- ===================================================
+       STATUS BMS
+       =================================================== -->
+
+  <div class="bms-header">
+
+    <div class="status-card">
+
+      <label>
+        SOC
+      </label>
+
+      <span id="control-soc">
+        --%
+      </span>
+
+    </div>
+
+
+    <div class="status-card">
+
+      <label>
+        TENSIUNE
+      </label>
+
+      <span id="control-v">
+        -- V
+      </span>
+
+    </div>
+
+  </div>
+
+
+  <!-- ===================================================
+       CHARGE
+       =================================================== -->
+
+  <div class="control-box">
+
+    <div class="control-label">
+      CHARGE
+    </div>
+
+    <div class="control-value">
+      <span id="val-chg">
+        --
+      </span>
+    </div>
+
+    <input
+      id="slider-chg"
+      class="long-slider"
+      type="range"
+      min="0"
+      max="1"
+      step="1"
+      value="0"
+      onchange="comutaSliderRange('chg')">
+
+    <div
+      id="status-chg"
+      class="control-status">
+      Așteaptă date...
+    </div>
+
+  </div>
+
+
+  <!-- ===================================================
+       DISCHARGE
+       =================================================== -->
+
+  <div class="control-box">
+
+    <div class="control-label">
+      DISCHARGE
+    </div>
+
+    <div class="control-value">
+      <span id="val-dsg">
+        --
+      </span>
+    </div>
+
+    <input
+      id="slider-dsg"
+      class="long-slider"
+      type="range"
+      min="0"
+      max="1"
+      step="1"
+      value="0"
+      onchange="comutaSliderRange('dsg')">
+
+    <div
+      id="status-dsg"
+      class="control-status">
+      Așteaptă date...
+    </div>
+
+  </div>
+
+
+  <!-- ===================================================
+       ATS MANUAL
+       =================================================== -->
+
+  <div class="control-box">
+
+    <div class="control-label">
+      ATS MANUAL
+    </div>
+
+    <div class="control-value">
+      <span id="val-ats-manual">
+        --
+      </span>
+    </div>
+
+    <input
+      id="slider-ats-manual"
+      class="long-slider"
+      type="range"
+      min="0"
+      max="1"
+      step="1"
+      value="0"
+      onchange="comutaSliderRange('ats_manual')">
+
+    <div
+      id="status-ats-manual"
+      class="control-status">
+      Așteaptă date...
+    </div>
+
+  </div>
+
+
+  <!-- ===================================================
+       ATS PRAG
+       =================================================== -->
+
+  <div class="control-box">
+
+    <div class="control-label">
+      PRAG ATS
+    </div>
+
+    <div class="control-value">
+      <span id="val-ats-prag">
+        --%
+      </span>
+    </div>
+
+    <input
+      id="slider-ats-prag"
+      class="long-slider"
+      type="range"
+      min="15"
+      max="30"
+      step="1"
+      value="22"
+      onchange="trimitePragATS()">
+
+    <div
+      id="status-ats-prag"
+      class="control-status">
+      Așteaptă date...
+    </div>
+
+  </div>
+
+
+  <!-- ===================================================
+       STARE ATS
+       =================================================== -->
+
+  <div class="ats-state">
+
+    <div class="control-label">
+      STARE ATS
+    </div>
+
+    <div
+      id="ats-state-value"
+      class="ats-state-value">
+      -
+    </div>
+
+  </div>
+
+
+</div>
 
 <!-- =====================================================
      P2 - JAVASCRIPT BMS / CLOUDFLARE
