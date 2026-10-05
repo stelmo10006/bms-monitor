@@ -3183,15 +3183,27 @@ function afiseazaPragATS(valoare) {
 
 async function trimitePragATS() {
 
-  const slider = document.getElementById("ats-prag-slider");
-  const statusEl = document.getElementById("ats-prag-status");
-  const valoareEl = document.getElementById("ats-prag-value");
+  const slider =
+    document.getElementById(
+      "slider-ats-prag"
+    );
+
+  const statusEl =
+    document.getElementById(
+      "status-ats-prag"
+    );
+
+  const valoareEl =
+    document.getElementById(
+      "val-ats-prag"
+    );
 
   if (!slider) {
     return;
   }
 
-  const valoare = Number(slider.value);
+  const valoare =
+    Number(slider.value);
 
   await trimiteComandaWorker(
     FEED_ATS_PRAG,
