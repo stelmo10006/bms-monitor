@@ -3097,62 +3097,150 @@ async function trimiteComandaWorker(feed, valoare, slider, statusEl, valoareEl) 
 }
 
 
+
 /* -----------------------------------------------------
-   CHG / DSG / ATS MANUAL
+   CHG / DSG / ATS MANUAL — COMANDĂ CU CONFIRMARE
    ----------------------------------------------------- */
 
-async function comutaSliderRange(tip) {
+let comenziInAsteptare = {};
 
-  let slider;
-  let statusEl;
-  let valoareEl;
-  let feed;
+function pregatesteComandaSlider(tip) {
+
+  let sliderId;
+  let statusId;
+  let valoareId;
+  let butonId;
 
   if (tip === "chg") {
-
-    slider = document.getElementById("chg-slider");
-    statusEl = document.getElementById("chg-status");
-    valoareEl = document.getElementById("chg-value");
-    feed = FEED_CHG;
-
+    sliderId = "chg-slider";
+    statusId = "status-chg";
+    valoareId = "val-chg";
+    butonId = "confirma-chg";
   }
 
   else if (tip === "dsg") {
-
-    slider = document.getElementById("dsg-slider");
-    statusEl = document.getElementById("dsg-status");
-    valoareEl = document.getElementById("dsg-value");
-    feed = FEED_DSG;
-
+    sliderId = "dsg-slider";
+    statusId = "status-dsg";
+    valoareId = "val-dsg";
+    butonId = "confirma-dsg";
   }
 
   else if (tip === "ats_manual") {
-
-    slider = document.getElementById("ats-manual-slider");
-    statusEl = document.getElementById("ats-manual-status");
-    valoareEl = document.getElementById("ats-manual-value");
-    feed = FEED_ATS_MANUAL;
-
+    sliderId = "ats-manual-slider";
+    statusId = "status-ats-manual";
+    valoareId = "val-ats-manual";
+    butonId = "confirma-ats-manual";
   }
 
   else {
     return;
   }
 
-  if (!slider) {
-    console.error("Slider negăsit:", tip);
+  const slider = document.getElementById(sliderId);
+  const statusEl = document.getElementById(statusId);
+  const valoareEl = document.getElementById(valoareId);
+  const buton = document.getElementById(butonId);
+
+  if (!slider || !buton) {
+    console.error("Control negăsit pentru:", tip);
     return;
   }
 
-  const valoare = Number(slider.value);
+  // Memorăm alegerea fără să trimitem comanda.
+  comenziInAsteptare[tip] = Number(slider.value);
 
-  await trimiteComandaWorker(
-    feed,
-    valoare,
-    slider,
-    statusEl,
-    valoareEl
-  );
+  if (valoareEl) {
+    if (tip === "ats_manual") {
+      valoareEl.textContent =
+        Number(slider.value) === 1 ? "REȚEA" : "AUTO";
+    } else {
+      valoareEl.textContent =
+        Number(slider.value) === 1 ? "PORNIT" : "OPRIT";
+    }
+  }
+
+  if (statusEl) {
+    statusEl.textContent =
+      "Alegere nestrimisă — apasă CONFIRMĂ pentru a trimite";
+    statusEl.style.color = "#ffaa00";
+  }
+
+  buton.style.display = "inline-block";
+}
+
+
+async function confirmaComandaSlider(tip) {
+
+  if (!Object.prototype.hasOwnProperty.call(
+    comenziInAsteptare, tip
+  )) {
+    return;
+  }
+
+  let sliderId;
+  let statusId;
+  let valoareId;
+  let butonId;
+  let feed;
+
+  if (tip === "chg") {
+    sliderId = "chg-slider";
+    statusId = "status-chg";
+    valoareId = "val-chg";
+    butonId = "confirma-chg";
+    feed = FEED_CHG;
+  }
+
+  else if (tip === "dsg") {
+    sliderId = "dsg-slider";
+    statusId = "status-dsg";
+    valoareId = "val-dsg";
+    butonId = "confirma-dsg";
+    feed = FEED_DSG;
+  }
+
+  else if (tip === "ats_manual") {
+    sliderId = "ats-manual-slider";
+    statusId = "status-ats-manual";
+    valoareId = "val-ats-manual";
+    butonId = "confirma-ats-manual";
+    feed = FEED_ATS_MANUAL;
+  }
+
+  else {
+    return;
+  }
+
+  const slider = document.getElementById(sliderId);
+  const statusEl = document.getElementById(statusId);
+  const valoareEl = document.getElementById(valoareId);
+  const buton = document.getElementById(butonId);
+
+  if (!slider) return;
+
+  const valoare = comenziInAsteptare[tip];
+
+  // Eliminăm alegerea în așteptare și ascundem butonul.
+  delete comenziInAsteptare[tip];
+
+  if (buton) {
+    buton.style.display = "none";
+    buton.disabled = true;
+  }
+
+  try {
+    await trimiteComandaWorker(
+      feed,
+      valoare,
+      slider,
+      statusEl,
+      valoareEl
+    );
+  } finally {
+    if (buton) {
+      buton.disabled = false;
+    }
+  }
 }
 
 
