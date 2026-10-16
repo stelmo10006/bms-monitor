@@ -833,13 +833,20 @@ body {
       onchange="pregatesteComandaSlider('chg')">
 
     <button
-      id="confirma-chg"
-      type="button"
-      style="display:none"
-      onclick="confirmaComandaSlider('chg')">
-      CONFIRMĂ CHG
-    </button>
+  id="confirma-chg"
+  type="button"
+  style="display:none"
+  onclick="confirmaComandaSlider('chg')">
+  CONFIRMĂ CHG
+</button>
 
+<button
+  id="anuleaza-chg"
+  type="button"
+  style="display:none"
+  onclick="anuleazaComandaSlider('chg')">
+  ANULEAZĂ
+</button>
     <div
       id="status-chg"
       class="control-status">
@@ -870,7 +877,7 @@ body {
       min="0"
       max="1"
       step="1"
-      value="0"
+   value="0"
       onchange="pregatesteComandaSlider('dsg')">
 
     <button
@@ -879,6 +886,14 @@ body {
       style="display:none"
       onclick="confirmaComandaSlider('dsg')">
       CONFIRMĂ DSG
+    </button>
+
+    <button
+      id="anuleaza-dsg"
+      type="button"
+      style="display:none"
+      onclick="anuleazaComandaSlider('dsg')">
+      ANULEAZĂ
     </button>
 
     <div
@@ -892,7 +907,6 @@ body {
    <!-- ===================================================
        ATS MANUAL
        =================================================== -->
-
   <div class="control-box">
 
     <div class="control-label">
@@ -908,34 +922,42 @@ body {
     </div>
 
     <input
-      id="ats-manual-slider"
-      class="long-slider"
-      type="range"
-      min="0"
-      max="1"
-      step="1"
-      value="0"
-      onchange="pregatesteComandaSlider('ats_manual')">
+  id="ats-manual-slider"
+  class="long-slider"
+  type="range"
+  min="0"
+  max="1"
+  step="1"
+  value="0"
+  onchange="pregatesteComandaSlider('ats_manual')">
 
-    <button
-      id="confirma-ats-manual"
-      type="button"
-      style="display:none"
-      onclick="confirmaComandaSlider('ats_manual')">
-      CONFIRMĂ ATS
-    </button>
+<button
+  id="confirma-ats-manual"
+  type="button"
+  style="display:none"
+  onclick="confirmaComandaSlider('ats_manual')">
+  CONFIRMĂ ATS
+</button>
 
-    <div
-      id="status-ats-manual"
-      class="control-status">
-      Așteaptă date...
-    </div>
+<button
+  id="anuleaza-ats-manual"
+  type="button"
+  style="display:none"
+  onclick="anuleazaComandaSlider('ats_manual')">
+  ANULEAZĂ
+</button>
 
-  </div>
+<div
+  id="status-ats-manual"
+  class="control-status">
+  Așteaptă date...
+</div>
 
-  <!-- ===================================================
-       ATS PRAG
-       =================================================== -->
+</div>
+
+<!-- ===================================================
+     ATS PRAG
+     =================================================== -->
 
   <div class="control-box">
 
@@ -1961,59 +1983,40 @@ function proceseazaCHG(text) {
     text !== "0" &&
     text !== "1"
   ) {
-
     return;
-
   }
 
+  // Memoram ultima valoare primita din Worker.
+  valoareCHG = parseInt(text);
 
-  valoareCHG =
-    parseInt(text);
-
+  // Daca exista o alegere in asteptare,
+  // nu atingem sliderul si butoanele de confirmare.
+  if (
+    Object.prototype.hasOwnProperty.call(
+      comenziInAsteptare, "chg"
+    )
+  ) {
+    return;
+  }
 
   const slider =
-    document.getElementById(
-      "chg-slider"
-    );
-
+    document.getElementById("chg-slider");
 
   if (slider) {
-
-    slider.value =
-      valoareCHG;
-
-    slider.disabled =
-      false;
-
-    slider.classList.add(
-      "enabled"
-    );
-
+    slider.value = valoareCHG;
+    slider.disabled = false;
+    slider.classList.add("enabled");
   }
 
+  chgConfirmat = true;
+  chgAsteaptaConfirmare = false;
 
-  chgConfirmat =
-    true;
+  document.getElementById("val-chg").innerText =
+    valoareCHG === 1 ? "PORNIT" : "OPRIT";
 
-  chgAsteaptaConfirmare =
-    false;
-
-
-  document.getElementById(
-    "val-chg"
-  ).innerText =
-    valoareCHG === 1
-      ? "PORNIT"
-      : "OPRIT";
-
-
-  document.getElementById(
-    "status-chg"
-  ).innerText =
+  document.getElementById("status-chg").innerText =
     "Confirmat Worker";
-
 }
-
 
 /* =========================================================
    PROCESARE DSG
@@ -2025,57 +2028,39 @@ function proceseazaDSG(text) {
     text !== "0" &&
     text !== "1"
   ) {
-
     return;
-
   }
 
+  // Memoram ultima valoare primita din Worker.
+  valoareDSG = parseInt(text);
 
-  valoareDSG =
-    parseInt(text);
-
+  // Daca exista o alegere in asteptare,
+  // nu atingem sliderul si butoanele de confirmare.
+  if (
+    Object.prototype.hasOwnProperty.call(
+      comenziInAsteptare, "dsg"
+    )
+  ) {
+    return;
+  }
 
   const slider =
-    document.getElementById(
-      "dsg-slider"
-    );
-
+    document.getElementById("dsg-slider");
 
   if (slider) {
-
-    slider.value =
-      valoareDSG;
-
-    slider.disabled =
-      false;
-
-    slider.classList.add(
-      "enabled"
-    );
-
+    slider.value = valoareDSG;
+    slider.disabled = false;
+    slider.classList.add("enabled");
   }
 
+  dsgConfirmat = true;
+  dsgAsteaptaConfirmare = false;
 
-  dsgConfirmat =
-    true;
+  document.getElementById("val-dsg").innerText =
+    valoareDSG === 1 ? "PORNIT" : "OPRIT";
 
-  dsgAsteaptaConfirmare =
-    false;
-
-
-  document.getElementById(
-    "val-dsg"
-  ).innerText =
-    valoareDSG === 1
-      ? "PORNIT"
-      : "OPRIT";
-
-
-  document.getElementById(
-    "status-dsg"
-  ).innerText =
+  document.getElementById("status-dsg").innerText =
     "Confirmat Worker";
-
 }
 
 
@@ -2163,57 +2148,39 @@ function proceseazaATSManual(text) {
     text !== "0" &&
     text !== "1"
   ) {
-
     return;
-
   }
 
+  // Memoram ultima valoare primita din Worker.
+  valoareATSManual = parseInt(text);
 
-  valoareATSManual =
-    parseInt(text);
-
+  // Daca exista o alegere in asteptare,
+  // nu atingem sliderul si butoanele de confirmare.
+  if (
+    Object.prototype.hasOwnProperty.call(
+      comenziInAsteptare, "ats_manual"
+    )
+  ) {
+    return;
+  }
 
   const slider =
-    document.getElementById(
-      "ats-manual-slider"
-    );
-
+    document.getElementById("ats-manual-slider");
 
   if (slider) {
-
-    slider.value =
-      valoareATSManual;
-
-    slider.disabled =
-      false;
-
-    slider.classList.add(
-      "enabled"
-    );
-
+    slider.value = valoareATSManual;
+    slider.disabled = false;
+    slider.classList.add("enabled");
   }
 
+  document.getElementById("val-ats-manual").innerText =
+    valoareATSManual === 1 ? "REȚEA" : "AUTO";
 
-  document.getElementById(
-    "val-ats-manual"
-  ).innerText =
-    valoareATSManual === 1
-      ? "REȚEA"
-      : "AUTO";
-
-
-  document.getElementById(
-    "status-ats-manual"
-  ).innerText =
+  document.getElementById("status-ats-manual").innerText =
     "Confirmat Worker";
 
-
-  atsManualConfirmat =
-    true;
-
-  atsManualAsteaptaConfirmare =
-    false;
-
+  atsManualConfirmat = true;
+  atsManualAsteaptaConfirmare = false;
 }
 
 
@@ -3116,66 +3083,180 @@ async function trimiteComandaWorker(feed, valoare, slider, statusEl, valoareEl) 
 }
 
 
-
 /* -----------------------------------------------------
-   CHG / DSG / ATS MANUAL — COMANDĂ CU CONFIRMARE
+   CHG / DSG / ATS MANUAL — CONFIRMARE SI ANULARE
    ----------------------------------------------------- */
 
 let comenziInAsteptare = {};
+let temporizatoareComanda = {};
 
-function pregatesteComandaSlider(tip) {
-  let sliderId, statusId, valoareId, butonId;
-
+function configuratieComandaSlider(tip) {
   if (tip === "chg") {
-    sliderId = "chg-slider";
-    statusId = "status-chg";
-    valoareId = "val-chg";
-    butonId = "confirma-chg";
-  } else if (tip === "dsg") {
-    sliderId = "dsg-slider";
-    statusId = "status-dsg";
-    valoareId = "val-dsg";
-    butonId = "confirma-dsg";
-  } else if (tip === "ats_manual") {
-    sliderId = "ats-manual-slider";
-    statusId = "status-ats-manual";
-    valoareId = "val-ats-manual";
-    butonId = "confirma-ats-manual";
-  } else {
-    return;
+    return {
+      sliderId: "chg-slider",
+      statusId: "status-chg",
+      valoareId: "val-chg",
+      confirmaId: "confirma-chg",
+      anuleazaId: "anuleaza-chg",
+      feed: FEED_CHG,
+      valoareCurenta: () => valoareCHG,
+      eticheta: "CHG"
+    };
   }
 
-  const slider = document.getElementById(sliderId);
-  const statusEl = document.getElementById(statusId);
-  const valoareEl = document.getElementById(valoareId);
-  const buton = document.getElementById(butonId);
+  if (tip === "dsg") {
+    return {
+      sliderId: "dsg-slider",
+      statusId: "status-dsg",
+      valoareId: "val-dsg",
+      confirmaId: "confirma-dsg",
+      anuleazaId: "anuleaza-dsg",
+      feed: FEED_DSG,
+      valoareCurenta: () => valoareDSG,
+      eticheta: "DSG"
+    };
+  }
 
-  if (!slider || !buton) {
+  if (tip === "ats_manual") {
+    return {
+      sliderId: "ats-manual-slider",
+      statusId: "status-ats-manual",
+      valoareId: "val-ats-manual",
+      confirmaId: "confirma-ats-manual",
+      anuleazaId: "anuleaza-ats-manual",
+      feed: FEED_ATS_MANUAL,
+      valoareCurenta: () => valoareATSManual,
+      eticheta: "ATS MANUAL"
+    };
+  }
+
+  return null;
+}
+
+
+function afiseazaValoareSlider(tip, valoare) {
+  const cfg = configuratieComandaSlider(tip);
+
+  if (!cfg) return;
+
+  const valoareEl =
+    document.getElementById(cfg.valoareId);
+
+  if (!valoareEl) return;
+
+  if (tip === "ats_manual") {
+    valoareEl.textContent =
+      Number(valoare) === 1 ? "REȚEA" : "AUTO";
+  } else {
+    valoareEl.textContent =
+      Number(valoare) === 1 ? "PORNIT" : "OPRIT";
+  }
+}
+
+
+function pregatesteComandaSlider(tip) {
+  const cfg = configuratieComandaSlider(tip);
+
+  if (!cfg) return;
+
+  const slider =
+    document.getElementById(cfg.sliderId);
+
+  const statusEl =
+    document.getElementById(cfg.statusId);
+
+  const butonConfirma =
+    document.getElementById(cfg.confirmaId);
+
+  const butonAnuleaza =
+    document.getElementById(cfg.anuleazaId);
+
+  if (!slider || !butonConfirma || !butonAnuleaza) {
     console.error("Control negăsit pentru:", tip);
     return;
   }
 
-  // Memorăm alegerea; nu trimitem încă nicio comandă.
+  // Memorăm alegerea locală. Nu trimitem comanda.
   comenziInAsteptare[tip] = Number(slider.value);
 
-  if (valoareEl) {
-    if (tip === "ats_manual") {
-      valoareEl.textContent =
-        Number(slider.value) === 1 ? "REȚEA" : "AUTO";
-    } else {
-      valoareEl.textContent =
-        Number(slider.value) === 1 ? "PORNIT" : "OPRIT";
-    }
-  }
+  afiseazaValoareSlider(tip, comenziInAsteptare[tip]);
 
   if (statusEl) {
     statusEl.textContent =
-      "Alegere nestrimisă — apasă CONFIRMĂ pentru a trimite";
+      "Alegere nestrimisă — confirmă sau anulează (30 s)";
     statusEl.style.color = "#ffaa00";
   }
 
-  buton.style.display = "inline-block";
+  butonConfirma.style.display = "inline-block";
+  butonAnuleaza.style.display = "inline-block";
+
+  // O nouă alegere pornește din nou intervalul de 30 s.
+  clearTimeout(temporizatoareComanda[tip]);
+
+  temporizatoareComanda[tip] = setTimeout(() => {
+    anuleazaComandaSlider(tip, true);
+  }, 30000);
 }
+
+
+function anuleazaComandaSlider(tip, expirata = false) {
+  const cfg = configuratieComandaSlider(tip);
+
+  if (!cfg) return;
+
+  // Dacă nu mai există o alegere, nu facem nimic.
+  if (!Object.prototype.hasOwnProperty.call(
+    comenziInAsteptare, tip
+  )) {
+    return;
+  }
+
+  clearTimeout(temporizatoareComanda[tip]);
+  delete temporizatoareComanda[tip];
+  delete comenziInAsteptare[tip];
+
+  const slider =
+    document.getElementById(cfg.sliderId);
+
+  const statusEl =
+    document.getElementById(cfg.statusId);
+
+  const butonConfirma =
+    document.getElementById(cfg.confirmaId);
+
+  const butonAnuleaza =
+    document.getElementById(cfg.anuleazaId);
+
+  // Revenim la ultima valoare cunoscută din Worker.
+  const valoare = Number(cfg.valoareCurenta());
+
+  if (slider && Number.isFinite(valoare)) {
+    slider.value = valoare;
+    slider.disabled = false;
+  }
+
+  if (Number.isFinite(valoare)) {
+    afiseazaValoareSlider(tip, valoare);
+  }
+
+  if (butonConfirma) {
+    butonConfirma.style.display = "none";
+    butonConfirma.disabled = false;
+  }
+
+  if (butonAnuleaza) {
+    butonAnuleaza.style.display = "none";
+  }
+
+  if (statusEl) {
+    statusEl.textContent = expirata
+      ? "Alegere expirată — comanda NU a fost trimisă"
+      : "Alegere anulată — comanda NU a fost trimisă";
+
+    statusEl.style.color = "#aaaaaa";
+  }
+}
+
 
 async function confirmaComandaSlider(tip) {
   if (!Object.prototype.hasOwnProperty.call(
@@ -3184,61 +3265,57 @@ async function confirmaComandaSlider(tip) {
     return;
   }
 
-  let sliderId, statusId, valoareId, butonId, feed;
+  const cfg = configuratieComandaSlider(tip);
 
-  if (tip === "chg") {
-    sliderId = "chg-slider";
-    statusId = "status-chg";
-    valoareId = "val-chg";
-    butonId = "confirma-chg";
-    feed = FEED_CHG;
-  } else if (tip === "dsg") {
-    sliderId = "dsg-slider";
-    statusId = "status-dsg";
-    valoareId = "val-dsg";
-    butonId = "confirma-dsg";
-    feed = FEED_DSG;
-  } else if (tip === "ats_manual") {
-    sliderId = "ats-manual-slider";
-    statusId = "status-ats-manual";
-    valoareId = "val-ats-manual";
-    butonId = "confirma-ats-manual";
-    feed = FEED_ATS_MANUAL;
-  } else {
-    return;
-  }
+  if (!cfg) return;
 
-  const slider = document.getElementById(sliderId);
-  const statusEl = document.getElementById(statusId);
-  const valoareEl = document.getElementById(valoareId);
-  const buton = document.getElementById(butonId);
+  const slider =
+    document.getElementById(cfg.sliderId);
+
+  const statusEl =
+    document.getElementById(cfg.statusId);
+
+  const valoareEl =
+    document.getElementById(cfg.valoareId);
+
+  const butonConfirma =
+    document.getElementById(cfg.confirmaId);
+
+  const butonAnuleaza =
+    document.getElementById(cfg.anuleazaId);
 
   if (!slider) {
     console.error("Slider negăsit:", tip);
     return;
   }
 
+  // Salvăm valoarea înainte de a șterge alegerea.
   const valoare = comenziInAsteptare[tip];
 
-  // Eliminăm alegerea și ascundem butonul de confirmare.
+  clearTimeout(temporizatoareComanda[tip]);
+  delete temporizatoareComanda[tip];
   delete comenziInAsteptare[tip];
 
-  if (buton) {
-    buton.style.display = "none";
-    buton.disabled = true;
+  if (butonConfirma) {
+    butonConfirma.style.display = "none";
+    butonConfirma.disabled = true;
+  }
+
+  if (butonAnuleaza) {
+    butonAnuleaza.style.display = "none";
   }
 
   try {
     await trimiteComandaWorker(
-      feed,
+      cfg.feed,
       valoare,
       slider,
       statusEl,
       valoareEl
     );
   } finally {
-    if (buton) {
-      buton.disabled = false;
+    if (butonConfirma) {
+      butonConfirma.disabled = false;
     }
   }
 }
