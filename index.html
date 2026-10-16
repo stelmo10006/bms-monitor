@@ -830,7 +830,15 @@ body {
       max="1"
       step="1"
       value="0"
-      onchange="comutaSliderRange('chg')">
+      onchange="pregatesteComandaSlider('chg')">
+
+    <button
+      id="confirma-chg"
+      type="button"
+      style="display:none"
+      onclick="confirmaComandaSlider('chg')">
+      CONFIRMĂ CHG
+    </button>
 
     <div
       id="status-chg"
@@ -852,11 +860,7 @@ body {
     </div>
 
     <div class="control-value">
-
-      <span id="val-dsg">
-        --
-      </span>
-
+      <span id="val-dsg">--</span>
     </div>
 
     <input
@@ -867,18 +871,25 @@ body {
       max="1"
       step="1"
       value="0"
-      onchange="comutaSliderRange('dsg')">
+      onchange="pregatesteComandaSlider('dsg')">
+
+    <button
+      id="confirma-dsg"
+      type="button"
+      style="display:none"
+      onclick="confirmaComandaSlider('dsg')">
+      CONFIRMĂ DSG
+    </button>
 
     <div
-     id="status-dsg"
+      id="status-dsg"
       class="control-status">
       Așteaptă date...
     </div>
 
   </div>
 
-
-  <!-- ===================================================
+   <!-- ===================================================
        ATS MANUAL
        =================================================== -->
 
@@ -904,16 +915,23 @@ body {
       max="1"
       step="1"
       value="0"
-      onchange="comutaSliderRange('ats_manual')">
+      onchange="pregatesteComandaSlider('ats_manual')">
+
+    <button
+      id="confirma-ats-manual"
+      type="button"
+      style="display:none"
+      onclick="confirmaComandaSlider('ats_manual')">
+      CONFIRMĂ ATS
+    </button>
 
     <div
-     id="status-ats-manual"
+      id="status-ats-manual"
       class="control-status">
       Așteaptă date...
     </div>
 
   </div>
-
 
   <!-- ===================================================
        ATS PRAG
@@ -942,7 +960,7 @@ body {
       step="1"
       value="22"
       onchange="trimitePragATS()">
-
+    
     <div
       id="status-ats-prag"
       class="control-status">
@@ -3049,7 +3067,8 @@ async function trimiteComandaWorker(feed, valoare, slider, statusEl, valoareEl) 
       }
     );
 
-    if (raspuns.status === 401) {
+       if (raspuns.status === 401) {
+      slider.disabled = false;
       expiraSesiunea();
       return;
     }
@@ -3097,64 +3116,132 @@ async function trimiteComandaWorker(feed, valoare, slider, statusEl, valoareEl) 
 }
 
 
+
 /* -----------------------------------------------------
-   CHG / DSG / ATS MANUAL
+   CHG / DSG / ATS MANUAL — COMANDĂ CU CONFIRMARE
    ----------------------------------------------------- */
 
-async function comutaSliderRange(tip) {
+let comenziInAsteptare = {};
 
-  let slider;
-  let statusEl;
-  let valoareEl;
-  let feed;
+function pregatesteComandaSlider(tip) {
+  let sliderId, statusId, valoareId, butonId;
 
   if (tip === "chg") {
-
-    slider = document.getElementById("chg-slider");
-    statusEl = document.getElementById("chg-status");
-    valoareEl = document.getElementById("chg-value");
-    feed = FEED_CHG;
-
-  }
-
-  else if (tip === "dsg") {
-
-    slider = document.getElementById("dsg-slider");
-    statusEl = document.getElementById("dsg-status");
-    valoareEl = document.getElementById("dsg-value");
-    feed = FEED_DSG;
-
-  }
-
-  else if (tip === "ats_manual") {
-
-    slider = document.getElementById("ats-manual-slider");
-    statusEl = document.getElementById("ats-manual-status");
-    valoareEl = document.getElementById("ats-manual-value");
-    feed = FEED_ATS_MANUAL;
-
-  }
-
-  else {
+    sliderId = "chg-slider";
+    statusId = "status-chg";
+    valoareId = "val-chg";
+    butonId = "confirma-chg";
+  } else if (tip === "dsg") {
+    sliderId = "dsg-slider";
+    statusId = "status-dsg";
+    valoareId = "val-dsg";
+    butonId = "confirma-dsg";
+  } else if (tip === "ats_manual") {
+    sliderId = "ats-manual-slider";
+    statusId = "status-ats-manual";
+    valoareId = "val-ats-manual";
+    butonId = "confirma-ats-manual";
+  } else {
     return;
   }
+
+  const slider = document.getElementById(sliderId);
+  const statusEl = document.getElementById(statusId);
+  const valoareEl = document.getElementById(valoareId);
+  const buton = document.getElementById(butonId);
+
+  if (!slider || !buton) {
+    console.error("Control negăsit pentru:", tip);
+    return;
+  }
+
+  // Memorăm alegerea; nu trimitem încă nicio comandă.
+  comenziInAsteptare[tip] = Number(slider.value);
+
+  if (valoareEl) {
+    if (tip === "ats_manual") {
+      valoareEl.textContent =
+        Number(slider.value) === 1 ? "REȚEA" : "AUTO";
+    } else {
+      valoareEl.textContent =
+        Number(slider.value) === 1 ? "PORNIT" : "OPRIT";
+    }
+  }
+
+  if (statusEl) {
+    statusEl.textContent =
+      "Alegere nestrimisă — apasă CONFIRMĂ pentru a trimite";
+    statusEl.style.color = "#ffaa00";
+  }
+
+  buton.style.display = "inline-block";
+}
+
+async function confirmaComandaSlider(tip) {
+  if (!Object.prototype.hasOwnProperty.call(
+    comenziInAsteptare, tip
+  )) {
+    return;
+  }
+
+  let sliderId, statusId, valoareId, butonId, feed;
+
+  if (tip === "chg") {
+    sliderId = "chg-slider";
+    statusId = "status-chg";
+    valoareId = "val-chg";
+    butonId = "confirma-chg";
+    feed = FEED_CHG;
+  } else if (tip === "dsg") {
+    sliderId = "dsg-slider";
+    statusId = "status-dsg";
+    valoareId = "val-dsg";
+    butonId = "confirma-dsg";
+    feed = FEED_DSG;
+  } else if (tip === "ats_manual") {
+    sliderId = "ats-manual-slider";
+    statusId = "status-ats-manual";
+    valoareId = "val-ats-manual";
+    butonId = "confirma-ats-manual";
+    feed = FEED_ATS_MANUAL;
+  } else {
+    return;
+  }
+
+  const slider = document.getElementById(sliderId);
+  const statusEl = document.getElementById(statusId);
+  const valoareEl = document.getElementById(valoareId);
+  const buton = document.getElementById(butonId);
 
   if (!slider) {
     console.error("Slider negăsit:", tip);
     return;
   }
 
-  const valoare = Number(slider.value);
+  const valoare = comenziInAsteptare[tip];
 
-  await trimiteComandaWorker(
-    feed,
-    valoare,
-    slider,
-    statusEl,
-    valoareEl
-  );
+  // Eliminăm alegerea și ascundem butonul de confirmare.
+  delete comenziInAsteptare[tip];
+
+  if (buton) {
+    buton.style.display = "none";
+    buton.disabled = true;
+  }
+
+  try {
+    await trimiteComandaWorker(
+      feed,
+      valoare,
+      slider,
+      statusEl,
+      valoareEl
+    );
+  } finally {
+    if (buton) {
+      buton.disabled = false;
+    }
+  }
 }
-
 
 /* -----------------------------------------------------
    AFISARE PRAG ATS
@@ -3164,8 +3251,8 @@ function afiseazaPragATS(valoare) {
 
   const prag = Number(valoare);
 
-  const slider = document.getElementById("ats-prag-slider");
-  const valoareEl = document.getElementById("ats-prag-value");
+  const slider = document.getElementById("slider-ats-prag");
+  const valoareEl = document.getElementById("val-ats-prag");
 
   if (slider) {
     slider.value = prag;
@@ -3175,7 +3262,6 @@ function afiseazaPragATS(valoare) {
     valoareEl.textContent = prag + "%";
   }
 }
-
 
 /* -----------------------------------------------------
    TRIMITERE PRAG ATS
