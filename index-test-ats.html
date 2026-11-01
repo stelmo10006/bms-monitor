@@ -1,0 +1,3377 @@
+<!DOCTYPE html>
+<html lang="ro">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>Consolă Monitorizare JKBMS</title>
+
+<style>
+
+/* =========================================================
+   PAGINA
+   ========================================================= */
+
+body {
+  background-color: #0c0c0c;
+  color: #e0e0e0;
+  margin: 0;
+  padding: 6px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.bms-container {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.main-title {
+  font-size: 18px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 9px;
+  text-align: center;
+  color: #2196F3;
+}
+
+
+/* =========================================================
+   BUTOANE PAGINI
+   ========================================================= */
+
+.page-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 9px;
+}
+
+.page-button {
+  background: #161616;
+  color: #777;
+  border: 1px solid #292929;
+  border-radius: 8px;
+  padding: 9px 6px;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.page-button.active {
+  background: #2196F3;
+  color: #fff;
+  border-color: #2196F3;
+}
+
+
+/* =========================================================
+   PAGINI
+   ========================================================= */
+
+.console-page {
+  display: none;
+}
+
+.console-page.active {
+  display: block;
+}
+
+
+/* =========================================================
+   CADRAN BATERIE
+   ========================================================= */
+
+.dashboard-gauge {
+  background: #161616;
+  border: 1px solid #222;
+  border-radius: 12px;
+  padding: 10px 10px 12px 10px;
+  margin-bottom: 9px;
+  text-align: center;
+}
+
+.gauge-title {
+  font-size: 12px;
+  color: #777;
+  letter-spacing: 1px;
+  margin-bottom: 2px;
+}
+
+.gauge {
+  width: 210px;
+  height: 210px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.gauge-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.gauge-track,
+.gauge-progress {
+  fill: none;
+  stroke-width: 13;
+}
+
+.gauge-track {
+  stroke: #292929;
+}
+
+.gauge-progress {
+  stroke: #00E676;
+  stroke-linecap: round;
+
+  stroke-dasharray: 565.48;
+  stroke-dashoffset: 565.48;
+
+  transition:
+    stroke-dashoffset 0.5s ease,
+    stroke 0.4s ease;
+}
+
+.gauge-center {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  text-align: center;
+}
+
+.gauge-soc {
+  font-size: 48px;
+  line-height: 1;
+  font-weight: bold;
+  color: #00E676;
+
+  transition:
+    color 0.4s ease;
+}
+
+.gauge-label {
+  font-size: 12px;
+  color: #777;
+  margin-top: 5px;
+  letter-spacing: 1px;
+}
+
+.gauge-prag {
+  font-size: 11px;
+  color: #777;
+  margin-top: 9px;
+}
+
+.gauge-values {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+  margin-top: 4px;
+}
+
+.gauge-value-box {
+  background: #111;
+  border-radius: 6px;
+  padding: 7px 3px;
+}
+
+.gauge-value-box span {
+  display: block;
+  font-size: 9px;
+  color: #666;
+}
+
+.gauge-value-box b {
+  display: block;
+  font-size: 15px;
+  color: #ddd;
+  margin-top: 2px;
+}
+
+
+/* =========================================================
+   PARAMETRI SISTEM
+   ========================================================= */
+
+.system-meta {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 5px;
+  margin-bottom: 9px;
+  background: #141414;
+  padding: 7px 10px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.meta-item {
+  padding: 2px 0;
+  color: #aaa;
+}
+
+.meta-item b {
+  color: #fff;
+  float: right;
+}
+
+
+/* =========================================================
+   ALARMA
+   ========================================================= */
+
+#alarm-banner {
+  display: none;
+  background: #b71c1c;
+  color: #fff;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  font-weight: bold;
+  text-align: center;
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   CELULE
+   ========================================================= */
+
+.grid-title {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 15px 0 8px 0;
+  color: #666;
+  border-bottom: 1px solid #222;
+  padding-bottom: 4px;
+}
+
+.cells-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.cell-box {
+  background: #161616;
+  padding: 8px;
+  border-radius: 6px;
+  text-align: center;
+  border-top: 4px solid #555;
+  font-size: 11px;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.cell-box b {
+  display: block;
+  font-size: 15px;
+  margin-top: 2px;
+  color: #fff;
+}
+
+.cell-min {
+  border-top-color: #f44336 !important;
+}
+
+.cell-max {
+  border-top-color: #00e676 !important;
+}
+
+.cell-normal {
+  border-top-color: #666 !important;
+}
+/* =========================================================
+   HEADER BMS - PAGINA CONTROL
+   ========================================================= */
+
+.bms-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.status-card {
+  background: #161616;
+  border: 1px solid #292929;
+  border-radius: 10px;
+  padding: 10px 8px;
+  text-align: center;
+}
+
+.status-card label {
+  display: block;
+  font-size: 10px;
+  color: #777;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.status-card span {
+  display: block;
+  font-size: 28px;
+  line-height: 1.1;
+  font-weight: bold;
+  color: #00E676;
+}
+
+
+/* =========================================================
+   ZONA CONTROL
+   ========================================================= */
+
+.control-title {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 18px 0 8px 0;
+  color: #666;
+  border-bottom: 1px solid #222;
+  padding-bottom: 4px;
+}
+
+
+/* =========================================================
+   CUTII CONTROL
+   ========================================================= */
+
+.control-box {
+  background: #161616;
+  border: 1px solid #222;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.control-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 9px;
+}
+
+.control-name {
+  font-size: 13px;
+  font-weight: bold;
+  color: #ddd;
+}
+
+.control-value {
+  font-size: 13px;
+  font-weight: bold;
+  color: #aaa;
+}
+
+
+/* =========================================================
+   SLIDERE LUNGI
+   ========================================================= */
+
+.range-wrap {
+  width: 100%;
+  position: relative;
+}
+
+.long-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 12px;
+  border-radius: 8px;
+  background: #333;
+  outline: none;
+  cursor: pointer;
+  margin: 5px 0;
+}
+
+.long-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #888;
+  border: 3px solid #111;
+  box-shadow: 0 0 0 1px #777;
+  cursor: pointer;
+}
+
+.long-slider::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #888;
+  border: 3px solid #111;
+  box-shadow: 0 0 0 1px #777;
+  cursor: pointer;
+}
+
+.long-slider.enabled::-webkit-slider-thumb {
+  background: #2196F3;
+}
+
+.long-slider.enabled::-moz-range-thumb {
+  background: #2196F3;
+}
+
+.long-slider:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.long-slider:disabled::-webkit-slider-thumb {
+  cursor: not-allowed;
+}
+
+.long-slider:disabled::-moz-range-thumb {
+  cursor: not-allowed;
+}
+
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #777;
+  margin-top: 2px;
+}
+
+.slider-status {
+  text-align: center;
+  font-size: 12px;
+  color: #888;
+  margin-top: 7px;
+  min-height: 16px;
+}
+
+
+/* =========================================================
+   STATUS RELEU ATS
+   ========================================================= */
+
+.ats-state {
+  text-align: center;
+  background: #141414;
+  border: 1px solid #222;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.ats-state-label {
+  font-size: 12px;
+  color: #777;
+  text-transform: uppercase;
+}
+
+.ats-state-value {
+  font-size: 20px;
+  font-weight: bold;
+  margin-top: 4px;
+  color: #888;
+}
+
+
+/* =========================================================
+   STATUS RETEA / MQTT
+   ========================================================= */
+
+.net-status {
+  text-align: center;
+  font-size: 11px;
+  color: #555;
+  margin-top: 20px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="bms-container">
+
+
+<div class="main-title">
+  Monitorizare Solară Live
+</div>
+
+
+<!-- =====================================================
+     BUTOANE PAGINI
+     ===================================================== -->
+
+<div class="page-buttons">
+
+  <button
+    id="btn-page-monitor"
+    class="page-button active"
+    onclick="schimbaPagina('monitor')">
+    MONITORIZARE
+  </button>
+
+  <button
+    id="btn-page-control"
+    class="page-button"
+    onclick="schimbaPagina('control')">
+    CONTROL
+  </button>
+
+</div>
+
+
+<!-- =====================================================
+     PAGINA 1 - MONITORIZARE
+     ===================================================== -->
+
+<div
+  id="page-monitor"
+  class="console-page active">
+
+
+  <!-- ===================================================
+       ALARMA
+       =================================================== -->
+
+  <div id="alarm-banner">
+
+    ⚠️ STATUS / ALARMĂ:
+
+    <span id="alarm-text">
+      -
+    </span>
+
+  </div>
+
+
+  <!-- ===================================================
+       CADRAN PRINCIPAL
+       =================================================== -->
+
+  <div class="dashboard-gauge">
+
+    <div class="gauge-title">
+      NIVEL BATERIE
+    </div>
+
+
+    <div class="gauge">
+
+      <svg
+        class="gauge-svg"
+        viewBox="0 0 200 200">
+
+        <!-- ARC FUNDAL -->
+
+        <circle
+          class="gauge-track"
+          cx="100"
+          cy="100"
+          r="90">
+        </circle>
+
+
+        <!-- ARC SOC -->
+
+        <circle
+          id="gauge-arc"
+          class="gauge-progress"
+          cx="100"
+          cy="100"
+          r="90">
+        </circle>
+
+      </svg>
+
+
+      <div class="gauge-center">
+
+        <div
+          id="gauge-soc"
+          class="gauge-soc">
+          -
+        </div>
+
+        <div class="gauge-label">
+          SOC
+        </div>
+
+        <div
+          id="gauge-prag"
+          class="gauge-prag">
+          ATS PRAG 22%
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- VALORI V / A / W -->
+
+    <div class="gauge-values">
+
+      <div class="gauge-value-box">
+
+        <span>
+          TENSIUNE
+        </span>
+
+        <b id="gauge-voltage">
+          -
+        </b>
+
+      </div>
+
+
+      <div class="gauge-value-box">
+
+        <span>
+          CURENT
+        </span>
+
+        <b id="gauge-current">
+          -
+        </b>
+
+      </div>
+
+
+      <div class="gauge-value-box">
+
+        <span>
+          PUTERE
+        </span>
+
+        <b id="gauge-power">
+          -
+        </b>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ===================================================
+       VALORI ORIGINALE
+       PASTRATE INVIZIBIL PENTRU LOGICA EXISTENTA
+       =================================================== -->
+
+  <div style="display:none;">
+
+    <span id="main-soc">-</span>
+    <span id="main-v">-</span>
+    <span id="main-a">-</span>
+    <span id="main-p">-</span>
+
+  </div>
+
+
+  <!-- ===================================================
+       PARAMETRI SISTEM
+       =================================================== -->
+
+  <div class="grid-title">
+    Parametri Sistem
+  </div>
+
+
+  <div class="system-meta">
+
+    <div class="meta-item">
+
+      Delta Celule:
+
+      <b id="meta-d">
+        - mV
+      </b>
+
+    </div>
+
+
+    <div class="meta-item">
+
+      Timp Rămas:
+
+      <b id="meta-t">
+        -
+      </b>
+
+    </div>
+
+
+    <div class="meta-item">
+
+      Stare ATS:
+
+      <b id="meta-ats">
+        -
+      </b>
+
+    </div>
+
+
+    <div class="meta-item">
+
+      BMS Bluetooth:
+
+      <b id="meta-bt">
+        -
+      </b>
+
+    </div>
+
+  </div>
+
+
+  <!-- ===================================================
+       CELULE
+       =================================================== -->
+
+  <div class="grid-title">
+    Tensiuni Celule (C1 - C16)
+  </div>
+
+
+  <div
+    id="cells-matrix"
+    class="cells-grid">
+  </div>
+
+</div>
+<!-- =====================================================
+     PAGINA 2 - CONTROL
+     ===================================================== -->
+
+<div
+  id="page-control"
+  class="console-page">
+
+  <!-- ===================================================
+       TITLU
+       =================================================== -->
+
+  <div class="control-title">
+    CONTROL BMS / ATS
+  </div>
+  <div
+  id="net-label"
+  class="control-status">
+  🔐 Așteaptă autentificarea...
+</div>
+
+  <!-- ===================================================
+       STATUS BMS
+       =================================================== -->
+
+  <div class="bms-header">
+
+    <div class="status-card">
+
+      <label>
+        SOC
+      </label>
+
+      <span id="control-soc">
+        --%
+      </span>
+
+    </div>
+
+
+    <div class="status-card">
+
+      <label>
+        TENSIUNE
+      </label>
+
+      <span id="control-v">
+        -- V
+      </span>
+
+    </div>
+
+  </div>
+
+
+  <!-- ===================================================
+       CHARGE
+       =================================================== -->
+
+  <div class="control-box">
+
+    <div class="control-label">
+      CHARGE
+    </div>
+
+    <div class="control-value">
+
+      <span id="val-chg">
+        --
+      </span>
+
+    </div>
+
+    <input
+      id="chg-slider"
+      class="long-slider"
+      type="range"
+      min="0"
+      max="1"
+      step="1"
+      value="0"
+      onchange="pregatesteComandaSlider('chg')">
+
+    <button
+  id="confirma-chg"
+  type="button"
+  style="display:none"
+  onclick="confirmaComandaSlider('chg')">
+  CONFIRMĂ CHG
+</button>
+
+<button
+  id="anuleaza-chg"
+  type="button"
+  style="display:none"
+  onclick="anuleazaComandaSlider('chg')">
+  ANULEAZĂ
+</button>
+    <div
+      id="status-chg"
+      class="control-status">
+      Așteaptă date...
+    </div>
+
+  </div>
+
+
+  <!-- ===================================================
+       DISCHARGE
+       =================================================== -->
+
+  <div class="control-box">
+
+    <div class="control-label">
+      DISCHARGE
+    </div>
+
+    <div class="control-value">
+      <span id="val-dsg">--</span>
+    </div>
+
+    <input
+      id="dsg-slider"
+      class="long-slider"
+      type="range"
+      min="0"
+      max="1"
+      step="1"
+   value="0"
+      onchange="pregatesteComandaSlider('dsg')">
+
+    <button
+      id="confirma-dsg"
+      type="button"
+      style="display:none"
+      onclick="confirmaComandaSlider('dsg')">
+      CONFIRMĂ DSG
+    </button>
+
+    <button
+      id="anuleaza-dsg"
+      type="button"
+      style="display:none"
+      onclick="anuleazaComandaSlider('dsg')">
+      ANULEAZĂ
+    </button>
+
+    <div
+      id="status-dsg"
+      class="control-status">
+      Așteaptă date...
+    </div>
+
+  </div>
+
+   <!-- ===================================================
+       ATS MANUAL
+       =================================================== -->
+  <div class="control-box">
+
+    <div class="control-label">
+      ATS MANUAL
+    </div>
+
+    <div class="control-value">
+
+      <span id="val-ats-manual">
+        --
+      </span>
+
+    </div>
+
+    <input
+  id="ats-manual-slider"
+  class="long-slider"
+  type="range"
+  min="0"
+  max="1"
+  step="1"
+  value="0"
+  onchange="pregatesteComandaSlider('ats_manual')">
+
+<button
+  id="confirma-ats-manual"
+  type="button"
+  style="display:none"
+  onclick="confirmaComandaSlider('ats_manual')">
+  CONFIRMĂ ATS
+</button>
+
+<button
+  id="anuleaza-ats-manual"
+  type="button"
+  style="display:none"
+  onclick="anuleazaComandaSlider('ats_manual')">
+  ANULEAZĂ
+</button>
+
+<div
+  id="status-ats-manual"
+  class="control-status">
+  Așteaptă date...
+</div>
+
+</div>
+
+<!-- ===================================================
+     ATS PRAG
+     =================================================== -->
+
+  <div class="control-box">
+
+    <div class="control-label">
+      PRAG ATS
+    </div>
+
+    <div class="control-value">
+
+      <span id="val-ats-prag">
+        --%
+      </span>
+
+    </div>
+
+    <input
+      id="slider-ats-prag"
+      class="long-slider"
+      type="range"
+      min="15"
+      max="30"
+      step="1"
+      value="22"
+      onchange="trimitePragATS()">
+    
+    <div
+      id="status-ats-prag"
+      class="control-status">
+      Așteaptă date...
+    </div>
+
+  </div>
+
+
+  <!-- ===================================================
+       STARE ATS
+       =================================================== -->
+
+  <div class="ats-state">
+
+    <div class="control-label">
+      STARE ATS
+    </div>
+
+    <div
+      id="ats-state-value"
+      class="ats-state-value">
+      -
+    </div>
+
+  </div>
+
+
+</div>
+<!-- =====================================================
+     P2 - JAVASCRIPT BMS / CLOUDFLARE
+     ===================================================== -->
+
+<script>
+
+/* =========================================================
+   CONFIGURARE
+   ========================================================= */
+
+const USERNAME = "reddan06";
+
+const WORKER_URL =
+  "https://bms-aio-proxy.stelmo10006.workers.dev";
+
+
+/* =========================================================
+   FEED-URI
+   ========================================================= */
+
+const FEED_BMS =
+  "date-bms";
+
+const FEED_CHG =
+  "chg";
+
+const FEED_DSG =
+  "dsg";
+
+const FEED_ATS_PRAG =
+  "ats-prag";
+
+const FEED_ATS_MANUAL =
+  "ats-manual";
+
+const FEED_STARE_ATS =
+  "stare-ats";
+
+
+/* =========================================================
+   STARI CONFIRMATE
+   ========================================================= */
+
+let chgConfirmat = false;
+let dsgConfirmat = false;
+let atsPragConfirmat = false;
+let atsManualConfirmat = false;
+
+
+/* =========================================================
+   ASTEPTARE CONFIRMARE
+   ========================================================= */
+
+let chgAsteaptaConfirmare = false;
+let dsgAsteaptaConfirmare = false;
+let atsPragAsteaptaConfirmare = false;
+let atsManualAsteaptaConfirmare = false;
+
+
+/* =========================================================
+   VALORI CURENTE
+   ========================================================= */
+
+let valoareCHG = 0;
+let valoareDSG = 0;
+let valoareATSManual = 0;
+let valoareATSPrag = 22;
+
+
+/* =========================================================
+   TOKEN
+   ========================================================= */
+
+let bmsToken =
+  localStorage.getItem(
+    "bms_token"
+  );
+
+
+/* =========================================================
+   SCHIMBARE PAGINA
+   ========================================================= */
+
+function schimbaPagina(pagina) {
+
+  const monitor =
+    document.getElementById(
+      "page-monitor"
+    );
+
+  const control =
+    document.getElementById(
+      "page-control"
+    );
+
+  const btnMonitor =
+    document.getElementById(
+      "btn-page-monitor"
+    );
+
+  const btnControl =
+    document.getElementById(
+      "btn-page-control"
+    );
+
+
+  if (pagina === "monitor") {
+
+    monitor.classList.add(
+      "active"
+    );
+
+    control.classList.remove(
+      "active"
+    );
+
+    btnMonitor.classList.add(
+      "active"
+    );
+
+    btnControl.classList.remove(
+      "active"
+    );
+
+  }
+
+  else if (
+    pagina === "control"
+  ) {
+
+    monitor.classList.remove(
+      "active"
+    );
+
+    control.classList.add(
+      "active"
+    );
+
+    btnMonitor.classList.remove(
+      "active"
+    );
+
+    btnControl.classList.add(
+      "active"
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   CREARE FEREASTRA LOGIN
+   ========================================================= */
+
+function creeazaLogin() {
+
+  if (
+    document.getElementById(
+      "bms-login"
+    )
+  ) {
+
+    return;
+
+  }
+
+
+  const login =
+    document.createElement(
+      "div"
+    );
+
+
+  login.id =
+    "bms-login";
+
+
+  login.style.position =
+    "fixed";
+
+  login.style.inset =
+    "0";
+
+  login.style.background =
+    "#0c0c0c";
+
+  login.style.zIndex =
+    "99999";
+
+  login.style.display =
+    "flex";
+
+  login.style.alignItems =
+    "center";
+
+  login.style.justifyContent =
+    "center";
+
+  login.style.padding =
+    "20px";
+
+  login.style.boxSizing =
+    "border-box";
+
+
+  login.innerHTML = `
+
+    <div style="
+      width:100%;
+      max-width:360px;
+      background:#161616;
+      border:1px solid #292929;
+      border-radius:14px;
+      padding:24px 20px;
+      box-sizing:border-box;
+      text-align:center;
+      box-shadow:0 10px 40px rgba(0,0,0,.5);
+    ">
+
+      <div style="
+        font-size:34px;
+        margin-bottom:10px;
+      ">
+        🔐
+      </div>
+
+      <div style="
+        color:#00E676;
+        font-size:20px;
+        font-weight:bold;
+        margin-bottom:6px;
+      ">
+        ACCES BMS
+      </div>
+
+      <div style="
+        color:#777;
+        font-size:12px;
+        margin-bottom:20px;
+      ">
+        Consolă monitorizare și control
+      </div>
+
+      <input
+        id="bms-password"
+        type="password"
+        placeholder="Parola"
+        autocomplete="current-password"
+        style="
+          width:100%;
+          box-sizing:border-box;
+          background:#0c0c0c;
+          color:#fff;
+          border:1px solid #333;
+          border-radius:8px;
+          padding:12px;
+          font-size:16px;
+          text-align:center;
+          outline:none;
+        "
+      >
+
+      <button
+        id="bms-login-button"
+        type="button"
+        style="
+          width:100%;
+          margin-top:12px;
+          padding:12px;
+          border:0;
+          border-radius:8px;
+          background:#00E676;
+          color:#000;
+          font-size:15px;
+          font-weight:bold;
+          cursor:pointer;
+        "
+      >
+        INTRĂ
+      </button>
+
+      <div
+        id="bms-login-status"
+        style="
+          min-height:20px;
+          margin-top:12px;
+          font-size:12px;
+          color:#FF9800;
+        "
+      ></div>
+
+    </div>
+  `;
+
+
+  document.body.appendChild(
+    login
+  );
+
+
+  const passwordInput =
+    document.getElementById(
+      "bms-password"
+    );
+
+
+  const loginButton =
+    document.getElementById(
+      "bms-login-button"
+    );
+
+
+  passwordInput.focus();
+
+
+  loginButton.addEventListener(
+    "click",
+    autentificaBMS
+  );
+
+
+  passwordInput.addEventListener(
+    "keydown",
+    function (event) {
+
+      if (
+        event.key === "Enter"
+      ) {
+
+        autentificaBMS();
+
+      }
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   AFISARE / ASCUNDERE LOGIN
+   ========================================================= */
+
+function arataLogin(mesaj) {
+
+  creeazaLogin();
+
+
+  const login =
+    document.getElementById(
+      "bms-login"
+    );
+
+
+  const status =
+    document.getElementById(
+      "bms-login-status"
+    );
+
+
+  login.style.display =
+    "flex";
+
+
+  if (mesaj) {
+
+    status.innerText =
+      mesaj;
+
+  }
+
+
+  const input =
+    document.getElementById(
+      "bms-password"
+    );
+
+
+  if (input) {
+
+    input.value = "";
+    input.focus();
+
+  }
+
+
+  blocheazaSlidere();
+
+}
+
+
+function ascundeLogin() {
+
+  const login =
+    document.getElementById(
+      "bms-login"
+    );
+
+
+  if (login) {
+
+    login.style.display =
+      "none";
+
+  }
+
+}
+
+
+/* =========================================================
+   LOGIN
+   ========================================================= */
+
+async function autentificaBMS() {
+
+  const input =
+    document.getElementById(
+      "bms-password"
+    );
+
+  const button =
+    document.getElementById(
+      "bms-login-button"
+    );
+
+  const status =
+    document.getElementById(
+      "bms-login-status"
+    );
+
+
+  const parola =
+    input.value;
+
+
+  if (!parola) {
+
+    status.innerText =
+      "Introdu parola.";
+
+    return;
+
+  }
+
+
+  button.disabled =
+    true;
+
+  button.style.opacity =
+    "0.6";
+
+  status.innerText =
+    "Se verifică parola...";
+
+
+  try {
+
+    const response =
+      await fetch(
+        WORKER_URL +
+        "/login",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body:
+            JSON.stringify(
+              {
+                password:
+                  parola
+              }
+            )
+        }
+      );
+
+
+    const data =
+      await response.json();
+
+
+    if (
+      !response.ok ||
+      !data.ok ||
+      !data.token
+    ) {
+
+      status.innerText =
+        "Parolă incorectă.";
+
+      button.disabled =
+        false;
+
+      button.style.opacity =
+        "1";
+
+      input.value =
+        "";
+
+      input.focus();
+
+      return;
+
+    }
+
+
+    bmsToken =
+      data.token;
+
+
+    localStorage.setItem(
+      "bms_token",
+      bmsToken
+    );
+
+
+    status.innerText =
+      "Autentificare reușită.";
+
+
+    setTimeout(
+      function () {
+
+        ascundeLogin();
+
+        pornesteMonitorizarea();
+
+      },
+      300
+    );
+
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "[LOGIN] Eroare:",
+      error
+    );
+
+
+    status.innerText =
+      "Eroare de conexiune.";
+
+
+    button.disabled =
+      false;
+
+    button.style.opacity =
+      "1";
+
+  }
+
+}
+
+
+/* =========================================================
+   HEADERE AUTENTICARE
+   ========================================================= */
+
+function headereAutentificare() {
+
+  return {
+
+    "Authorization":
+      "Bearer " +
+      bmsToken,
+
+    "Content-Type":
+      "application/json"
+
+  };
+
+}
+
+
+/* =========================================================
+   RESET AUTENTIFICARE
+   ========================================================= */
+
+function expiraSesiunea() {
+
+  bmsToken =
+    null;
+
+
+  localStorage.removeItem(
+    "bms_token"
+  );
+
+
+  arataLogin(
+    "Sesiunea a expirat."
+  );
+
+}
+
+
+/* =========================================================
+   BLOCARE SLIDERE
+   ========================================================= */
+
+function blocheazaSlidere() {
+
+  const ids = [
+
+    "slider-chg",
+    "slider-dsg",
+    "slider-ats-manual",
+    "slider-ats-prag"
+
+  ];
+
+
+  ids.forEach(
+    function (id) {
+
+      const slider =
+        document.getElementById(
+          id
+        );
+
+
+      if (slider) {
+
+        slider.disabled =
+          true;
+
+
+        slider.classList.remove(
+          "enabled"
+        );
+
+      }
+
+    }
+  );
+
+}
+
+/* =========================================================
+   CITIRE DATE PRIN CLOUDFLARE WORKER
+   ========================================================= */
+
+let monitorizarePornita = false;
+
+let intervalMonitorizare = null;
+
+
+/* =========================================================
+   ETICHETA RETEA
+   ========================================================= */
+const netLabel =
+  document.getElementById(
+    "net-label"
+  );
+
+if (netLabel) {
+
+  netLabel.innerText =
+    "🔐 Așteaptă autentificarea...";
+
+  netLabel.style.color =
+    "#FF9800";
+
+}
+
+
+/* =========================================================
+   DACA NU AVEM TOKEN -> LOGIN
+   ========================================================= */
+
+if (!bmsToken) {
+
+  arataLogin();
+
+}
+
+
+/* =========================================================
+   DACA AVEM TOKEN -> VERIFICAM
+   ========================================================= */
+
+else {
+
+  pornesteMonitorizarea();
+
+}
+
+/* =========================================================
+   CERERE DATE
+   ========================================================= */
+
+async function citesteDateBMS() {
+
+  if (!bmsToken) {
+    return;
+  }
+
+
+  try {
+
+    const response =
+      await fetch(
+        WORKER_URL +
+        "?feed=all",
+        {
+          method: "GET",
+
+          headers:
+            headereAutentificare(),
+
+          cache: "no-store"
+        }
+      );
+
+
+    /* =====================================================
+       TOKEN EXPIRAT / NEAUTORIZAT
+       ===================================================== */
+
+    if (
+      response.status === 401
+    ) {
+
+      console.log(
+        "[BMS] Sesiune expirata."
+      );
+
+      expiraSesiunea();
+
+      return;
+
+    }
+
+
+    if (!response.ok) {
+
+      console.error(
+        "[BMS] Eroare Worker:",
+        response.status
+      );
+
+      netLabel.innerText =
+        "🔴 Eroare conexiune Worker";
+
+      netLabel.style.color =
+        "#F44336";
+
+      blocheazaSlidere();
+
+      return;
+
+    }
+
+
+    const rezultat =
+      await response.json();
+
+
+    if (
+      !rezultat ||
+      !rezultat.ok ||
+      !Array.isArray(
+        rezultat.feeds
+      )
+    ) {
+
+      console.error(
+        "[BMS] Raspuns Worker invalid:",
+        rezultat
+      );
+
+      return;
+
+    }
+
+
+    /* =====================================================
+       PROCESARE FEED-URI
+       ===================================================== */
+
+    rezultat.feeds.forEach(
+      function (element) {
+
+        if (
+          !element ||
+          !element.feed ||
+          !Array.isArray(
+            element.data
+          ) ||
+          element.data.length === 0
+        ) {
+
+          return;
+
+        }
+
+
+        const feed =
+          element.feed;
+
+
+        const valoare =
+          element.data[0].value;
+
+
+        console.log(
+          "[WORKER]",
+          feed,
+          valoare
+        );
+
+
+        /* =================================================
+           CHG
+           ================================================= */
+
+        if (
+          feed === FEED_CHG
+        ) {
+
+          proceseazaCHG(
+            String(valoare)
+              .trim()
+          );
+
+          return;
+
+        }
+
+
+        /* =================================================
+           DSG
+           ================================================= */
+
+        if (
+          feed === FEED_DSG
+        ) {
+
+          proceseazaDSG(
+            String(valoare)
+              .trim()
+          );
+
+          return;
+
+        }
+
+
+        /* =================================================
+           ATS PRAG
+           ================================================= */
+
+        if (
+          feed === FEED_ATS_PRAG
+        ) {
+
+          proceseazaATSPrag(
+            String(valoare)
+              .trim()
+          );
+
+          return;
+
+        }
+
+
+        /* =================================================
+           ATS MANUAL
+           ================================================= */
+
+        if (
+          feed === FEED_ATS_MANUAL
+        ) {
+
+          proceseazaATSManual(
+            String(valoare)
+              .trim()
+          );
+
+          return;
+
+        }
+
+
+        /* =================================================
+           STARE ATS
+           ================================================= */
+
+        if (
+          feed === FEED_STARE_ATS
+        ) {
+
+          proceseazaStareATS(
+            String(valoare)
+              .trim()
+          );
+
+          return;
+
+        }
+
+
+        /* =================================================
+           BMS
+           ================================================= */
+
+        if (
+          feed === FEED_BMS
+        ) {
+
+          proceseazaBMS(
+            String(valoare)
+          );
+
+        }
+
+      }
+    );
+
+
+    /* =====================================================
+       CONEXIUNE OK
+       ===================================================== */
+
+    netLabel.innerText =
+      "🟢 Worker conectat • actualizare 10s";
+
+    netLabel.style.color =
+      "#00E676";
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "[BMS] Eroare citire:",
+      error
+    );
+
+
+    netLabel.innerText =
+      "🔴 Eroare conexiune Worker";
+
+    netLabel.style.color =
+      "#F44336";
+
+
+    blocheazaSlidere();
+
+  }
+
+}
+
+
+/* =========================================================
+   PROCESARE CHG
+   ========================================================= */
+
+function proceseazaCHG(text) {
+
+  if (
+    text !== "0" &&
+    text !== "1"
+  ) {
+    return;
+  }
+
+  // Memoram ultima valoare primita din Worker.
+  valoareCHG = parseInt(text);
+
+  // Daca exista o alegere in asteptare,
+  // nu atingem sliderul si butoanele de confirmare.
+  if (
+    Object.prototype.hasOwnProperty.call(
+      comenziInAsteptare, "chg"
+    )
+  ) {
+    return;
+  }
+
+  const slider =
+    document.getElementById("chg-slider");
+
+  if (slider) {
+    slider.value = valoareCHG;
+    slider.disabled = false;
+    slider.classList.add("enabled");
+  }
+
+  chgConfirmat = true;
+  chgAsteaptaConfirmare = false;
+
+  document.getElementById("val-chg").innerText =
+    valoareCHG === 1 ? "PORNIT" : "OPRIT";
+
+  document.getElementById("status-chg").innerText =
+    "Confirmat Worker";
+}
+
+/* =========================================================
+   PROCESARE DSG
+   ========================================================= */
+
+function proceseazaDSG(text) {
+
+  if (
+    text !== "0" &&
+    text !== "1"
+  ) {
+    return;
+  }
+
+  // Memoram ultima valoare primita din Worker.
+  valoareDSG = parseInt(text);
+
+  // Daca exista o alegere in asteptare,
+  // nu atingem sliderul si butoanele de confirmare.
+  if (
+    Object.prototype.hasOwnProperty.call(
+      comenziInAsteptare, "dsg"
+    )
+  ) {
+    return;
+  }
+
+  const slider =
+    document.getElementById("dsg-slider");
+
+  if (slider) {
+    slider.value = valoareDSG;
+    slider.disabled = false;
+    slider.classList.add("enabled");
+  }
+
+  dsgConfirmat = true;
+  dsgAsteaptaConfirmare = false;
+
+  document.getElementById("val-dsg").innerText =
+    valoareDSG === 1 ? "PORNIT" : "OPRIT";
+
+  document.getElementById("status-dsg").innerText =
+    "Confirmat Worker";
+}
+
+
+/* =========================================================
+   PROCESARE ATS PRAG
+   ========================================================= */
+
+function proceseazaATSPrag(text) {
+
+  const prag =
+    parseInt(text);
+
+
+  if (
+    isNaN(prag) ||
+    prag < 15 ||
+    prag > 30
+  ) {
+
+    return;
+
+  }
+
+
+  valoareATSPrag =
+    prag;
+
+
+  const slider =
+    document.getElementById(
+      "slider-ats-prag"
+    );
+
+
+  if (slider) {
+
+    slider.value =
+      prag;
+
+    slider.disabled =
+      false;
+
+    slider.classList.add(
+      "enabled"
+    );
+
+  }
+
+
+  document.getElementById(
+    "val-ats-prag"
+  ).innerText =
+    prag + "%";
+
+
+  document.getElementById(
+    "status-ats-prag"
+  ).innerText =
+    "Confirmat Worker";
+
+
+  atsPragConfirmat =
+    true;
+
+  atsPragAsteaptaConfirmare =
+    false;
+
+
+  /* =====================================================
+     REIMPROSPATARE CULOARE CADRAN
+     ===================================================== */
+
+  actualizeazaCuloareCadran();
+
+}
+
+
+/* =========================================================
+   PROCESARE ATS MANUAL
+   ========================================================= */
+
+function proceseazaATSManual(text) {
+
+  if (
+    text !== "0" &&
+    text !== "1"
+  ) {
+    return;
+  }
+
+  // Memoram ultima valoare primita din Worker.
+  valoareATSManual = parseInt(text);
+
+  // Daca exista o alegere in asteptare,
+  // nu atingem sliderul si butoanele de confirmare.
+  if (
+    Object.prototype.hasOwnProperty.call(
+      comenziInAsteptare, "ats_manual"
+    )
+  ) {
+    return;
+  }
+
+  const slider =
+    document.getElementById("ats-manual-slider");
+
+  if (slider) {
+    slider.value = valoareATSManual;
+    slider.disabled = false;
+    slider.classList.add("enabled");
+  }
+
+  document.getElementById("val-ats-manual").innerText =
+    valoareATSManual === 1 ? "REȚEA" : "SOLAR";
+
+  document.getElementById("status-ats-manual").innerText =
+    "Confirmat Worker";
+
+  atsManualConfirmat = true;
+  atsManualAsteaptaConfirmare = false;
+}
+
+
+/* =========================================================
+   PROCESARE STARE ATS
+   ========================================================= */
+
+function proceseazaStareATS(text) {
+
+  const cod = String(text).trim();
+  let eticheta = "";
+  let scurta = "";
+  let culoare = "#FF9800";
+
+  switch (cod) {
+    case "0":
+      eticheta = "☀️ SOLAR · SOC";
+      scurta = "SOLAR / SOC";
+      culoare = "#00E676";
+      break;
+
+    case "1":
+      eticheta = "🔌 REȚEA · SOC";
+      scurta = "REȚEA / SOC";
+      culoare = "#4CAF50";
+      break;
+
+    case "2":
+      eticheta = "☀️ SOLAR · MANUAL";
+      scurta = "SOLAR / MANUAL";
+      culoare = "#00E676";
+      break;
+
+    case "3":
+      eticheta = "🔌 REȚEA · MANUAL";
+      scurta = "REȚEA / MANUAL";
+      culoare = "#4CAF50";
+      break;
+
+    case "SOLAR":
+      eticheta = "☀️ SOLAR";
+      scurta = "SOLAR";
+      culoare = "#00E676";
+      break;
+
+    case "RETEA":
+    case "REȚEA":
+      eticheta = "🔌 REȚEA";
+      scurta = "REȚEA";
+      culoare = "#4CAF50";
+      break;
+
+    default:
+      eticheta = "STARE NECUNOSCUTĂ: " + cod;
+      scurta = cod;
+  }
+
+  const stareElement =
+    document.getElementById("ats-state-value");
+
+  if (stareElement) {
+    stareElement.innerText = eticheta;
+    stareElement.style.color = culoare;
+  }
+
+  const metaAts =
+    document.getElementById("meta-ats");
+
+  if (metaAts) {
+    metaAts.innerText = scurta;
+  }
+}
+
+
+ /* =========================================================
+    PROCESARE BMS
+    ========================================================= */
+
+function proceseazaBMS(text) {
+
+  try {
+
+    const bms =
+      JSON.parse(text);
+
+
+    console.log(
+      "[BMS] JSON:",
+      bms
+    );
+
+
+    /* ===================================================
+       SOC - CADRAN
+       =================================================== */
+
+    if (
+      bms.soc !== undefined
+    ) {
+
+      const soc =
+        parseFloat(
+          bms.soc
+        );
+
+
+      const mainSoc =
+        document.getElementById(
+          "main-soc"
+        );
+
+      if (mainSoc) {
+
+        mainSoc.innerText =
+          soc + "%";
+
+      }
+
+
+      const controlSoc =
+        document.getElementById(
+          "control-soc"
+        );
+
+      if (controlSoc) {
+
+        controlSoc.innerText =
+          soc + "%";
+
+      }
+
+
+      const gaugeValue =
+        document.getElementById(
+          "gauge-soc"
+        );
+
+
+      const gaugeArc =
+        document.getElementById(
+          "gauge-arc"
+        );
+
+
+      const gaugePrag =
+        document.getElementById(
+          "gauge-prag"
+        );
+
+
+      if (
+        gaugeValue &&
+        gaugeArc
+      ) {
+
+        gaugeValue.innerText =
+          soc + "%";
+
+
+        const procent =
+          Math.max(
+            0,
+            Math.min(
+              100,
+              soc
+            )
+          );
+
+
+        const circumferinta =
+          565.48;
+
+
+        const offset =
+          circumferinta -
+          (
+            procent / 100
+          ) *
+          circumferinta;
+
+
+        gaugeArc.style.strokeDashoffset =
+          offset;
+
+
+        const prag =
+          parseFloat(
+            valoareATSPrag
+          );
+
+
+        if (gaugePrag) {
+
+          gaugePrag.innerText =
+            "ATS PRAG " +
+            prag +
+            "%";
+
+        }
+
+
+        let culoare =
+          "#00E676";
+
+
+        if (
+          soc < prag
+        ) {
+
+          culoare =
+            "#F44336";
+
+        }
+
+        else if (
+          soc < 30
+        ) {
+
+          culoare =
+            "#FF9800";
+
+        }
+
+        else {
+
+          culoare =
+            "#00E676";
+
+        }
+
+
+        gaugeArc.style.stroke =
+          culoare;
+
+
+        gaugeValue.style.color =
+          culoare;
+
+      }
+
+    }
+
+
+    /* ===================================================
+       TENSIUNE
+       =================================================== */
+
+    if (
+      bms.v !== undefined
+    ) {
+
+      const tensiune =
+        parseFloat(
+          bms.v
+        ).toFixed(1) +
+        "V";
+
+
+      const mainV =
+        document.getElementById(
+          "main-v"
+        );
+
+      if (mainV) {
+
+        mainV.innerText =
+          tensiune;
+
+      }
+
+
+      const controlV =
+        document.getElementById(
+          "control-v"
+        );
+
+      if (controlV) {
+
+        controlV.innerText =
+          tensiune;
+
+      }
+
+
+      const gaugeVoltage =
+        document.getElementById(
+          "gauge-voltage"
+        );
+
+
+      if (
+        gaugeVoltage
+      ) {
+
+        gaugeVoltage.innerText =
+          tensiune;
+
+      }
+
+    }
+
+
+    /* ===================================================
+       CURENT
+       =================================================== */
+
+    if (
+      bms.a !== undefined
+    ) {
+
+      const curent =
+        parseFloat(
+          bms.a
+        ).toFixed(2) +
+        "A";
+
+
+      const mainA =
+        document.getElementById(
+          "main-a"
+        );
+
+      if (mainA) {
+
+        mainA.innerText =
+          curent;
+
+      }
+
+
+      const gaugeCurrent =
+        document.getElementById(
+          "gauge-current"
+        );
+
+
+      if (
+        gaugeCurrent
+      ) {
+
+        gaugeCurrent.innerText =
+          curent;
+
+      }
+
+    }
+
+
+    /* ===================================================
+       PUTERE
+       =================================================== */
+
+    if (
+      bms.p !== undefined
+    ) {
+
+      const putere =
+        bms.p +
+        "W";
+
+
+      const mainP =
+        document.getElementById(
+          "main-p"
+        );
+
+      if (mainP) {
+
+        mainP.innerText =
+          putere;
+
+      }
+
+
+      const gaugePower =
+        document.getElementById(
+          "gauge-power"
+        );
+
+
+      if (
+        gaugePower
+      ) {
+
+        gaugePower.innerText =
+          putere;
+
+      }
+
+    }
+
+
+    /* ===================================================
+       DELTA
+       =================================================== */
+
+    if (
+      bms.d !== undefined
+    ) {
+
+      const metaD =
+        document.getElementById(
+          "meta-d"
+        );
+
+      if (metaD) {
+
+        metaD.innerText =
+          bms.d +
+          " mV";
+
+      }
+
+    }
+
+
+    /* ===================================================
+       TIMP RAMAS
+       =================================================== */
+
+    if (
+      bms.t !== undefined
+    ) {
+
+      const metaT =
+        document.getElementById(
+          "meta-t"
+        );
+
+      if (metaT) {
+
+        metaT.innerText =
+          bms.t;
+
+      }
+
+    }
+
+
+
+    /* ===================================================
+       BLUETOOTH
+       =================================================== */
+
+    if (
+      bms.bt !== undefined
+    ) {
+
+      const metaBt =
+        document.getElementById(
+          "meta-bt"
+        );
+
+      if (metaBt) {
+
+        metaBt.innerText =
+          bms.bt
+            ? "ON"
+            : "OFF";
+
+      }
+
+    }
+
+
+    /* ===================================================
+       ALARMA
+       =================================================== */
+
+    const alarmBanner =
+      document.getElementById(
+        "alarm-banner"
+      );
+
+
+    const alarmText =
+      document.getElementById(
+        "alarm-text"
+      );
+
+
+    if (
+      bms.err &&
+      bms.err !== ""
+    ) {
+
+      if (alarmText) {
+
+        alarmText.innerText =
+          bms.err;
+
+      }
+
+
+      if (alarmBanner) {
+
+        alarmBanner.style.display =
+          "block";
+
+      }
+
+    }
+
+    else {
+
+      if (alarmBanner) {
+
+        alarmBanner.style.display =
+          "none";
+
+      }
+
+    }
+
+
+    /* ===================================================
+       CELULE - CULORI RELATIVE
+       =================================================== */
+
+    if (
+      Array.isArray(bms.c) &&
+      bms.c.length > 0
+    ) {
+
+      const celule =
+        bms.c.map(
+          function (valoare) {
+
+            return parseFloat(
+              valoare
+            );
+
+          }
+        );
+
+
+      const valoriValide =
+        celule.filter(
+          function (valoare) {
+
+            return !isNaN(
+              valoare
+            );
+
+          }
+        );
+
+
+      if (
+        valoriValide.length > 0
+      ) {
+
+        const minim =
+          Math.min(
+            ...valoriValide
+          );
+
+
+        const maxim =
+          Math.max(
+            ...valoriValide
+          );
+
+
+        let matrixHtml =
+          "";
+
+
+        celule.forEach(
+          function (
+            valoare,
+            index
+          ) {
+
+            let clasa =
+              "cell-normal";
+
+
+            if (
+              !isNaN(valoare)
+            ) {
+
+              if (
+                valoare === maxim &&
+                maxim !== minim
+              ) {
+
+                clasa =
+                  "cell-max";
+
+              }
+
+              else if (
+                valoare === minim &&
+                maxim !== minim
+              ) {
+
+                clasa =
+                  "cell-min";
+
+              }
+
+            }
+
+
+            matrixHtml +=
+              '<div class="cell-box ' +
+              clasa +
+              '">' +
+              "C" +
+              (index + 1) +
+              "<b>" +
+              (
+                isNaN(valoare)
+                  ? "-"
+                  : valoare.toFixed(3) +
+                    " V"
+              ) +
+              "</b>" +
+              "</div>";
+
+          }
+        );
+
+
+        const cellsMatrix =
+          document.getElementById(
+            "cells-matrix"
+          );
+
+        if (cellsMatrix) {
+
+          cellsMatrix.innerHTML =
+            matrixHtml;
+
+        }
+
+      }
+
+    }
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "[BMS] Eroare JSON:",
+      error
+    );
+
+  }
+
+}
+
+/* =========================================================
+   ACTUALIZARE CULOARE CADRAN
+   ========================================================= */
+
+function actualizeazaCuloareCadran() {
+
+  const gaugeValue =
+    document.getElementById(
+      "gauge-soc"
+    );
+
+
+  const gaugeArc =
+    document.getElementById(
+      "gauge-arc"
+    );
+
+
+  if (
+    !gaugeValue ||
+    !gaugeArc
+  ) {
+
+    return;
+
+  }
+
+
+  const textSOC =
+    gaugeValue.innerText
+      .replace(
+        "%",
+        ""
+      );
+
+
+  const soc =
+    parseFloat(
+      textSOC
+    );
+
+
+  if (
+    isNaN(soc)
+  ) {
+
+    return;
+
+  }
+
+
+  const prag =
+    parseFloat(
+      valoareATSPrag
+    );
+
+
+  let culoare =
+    "#00E676";
+
+
+  if (
+    soc < prag
+  ) {
+
+    culoare =
+      "#F44336";
+
+  }
+
+  else if (
+    soc < 30
+  ) {
+
+    culoare =
+      "#FF9800";
+
+  }
+
+
+  gaugeArc.style.stroke =
+    culoare;
+
+
+  gaugeValue.style.color =
+    culoare;
+
+}
+
+
+/* =========================================================
+   PORNIRE MONITORIZARE
+   ========================================================= */
+
+function pornesteMonitorizarea() {
+
+  if (
+    monitorizarePornita
+  ) {
+
+    return;
+
+  }
+
+
+  monitorizarePornita =
+    true;
+
+
+  blocheazaSlidere();
+
+
+  if (netLabel) {
+
+    netLabel.innerText =
+      "🟡 Se verifică accesul...";
+
+    netLabel.style.color =
+      "#FF9800";
+
+  }
+
+
+  citesteDateBMS();
+
+
+  intervalMonitorizare =
+    setInterval(
+      function () {
+
+        citesteDateBMS();
+
+      },
+      10000
+    );
+
+}
+
+
+/* =========================================================
+   VERIFICARE TOKEN LA PORNIRE
+   ========================================================= */
+
+
+/* =====================================================
+   P3 - COMENZI CONTROL PRIN CLOUDFLARE WORKER
+   ===================================================== */
+
+/* -----------------------------------------------------
+   FUNCTIE GENERALA PENTRU COMENZI
+   ----------------------------------------------------- */
+
+async function trimiteComandaWorker(feed, valoare, slider, statusEl, valoareEl) {
+
+  if (!bmsToken) {
+    arataLogin();
+    return;
+  }
+
+  slider.disabled = true;
+
+  if (statusEl) {
+    statusEl.textContent = "Se trimite comanda...";
+    statusEl.style.color = "#ffaa00";
+  }
+
+  if (valoareEl) {
+    valoareEl.textContent = "În așteptare...";
+  }
+
+  try {
+
+    const raspuns = await fetch(
+      WORKER_URL + "?feed=" + encodeURIComponent(feed),
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+          ...headereAutentificare()
+        },
+
+        body: JSON.stringify({
+          value: Number(valoare)
+        })
+      }
+    );
+
+       if (raspuns.status === 401) {
+      slider.disabled = false;
+      expiraSesiunea();
+      return;
+    }
+
+    const data = await raspuns.json();
+
+    if (!data.ok) {
+
+      if (statusEl) {
+        statusEl.textContent =
+          "❌ " + (data.error || "Comanda a eșuat");
+        statusEl.style.color = "#ff4444";
+      }
+
+      slider.disabled = false;
+      return;
+    }
+
+    if (statusEl) {
+      statusEl.textContent =
+        "🟡 Comandă trimisă - aștept confirmarea...";
+      statusEl.style.color = "#ffaa00";
+    }
+
+    /*
+     * Citim din nou valorile din AIO prin Worker,
+     * pentru a confirma că valoarea a ajuns efectiv.
+     */
+    setTimeout(() => {
+      citesteDateBMS();
+    }, 700);
+
+  } catch (eroare) {
+
+    console.error("Eroare comanda:", eroare);
+
+    if (statusEl) {
+      statusEl.textContent =
+        "❌ Eroare de comunicație";
+      statusEl.style.color = "#ff4444";
+    }
+
+    slider.disabled = false;
+  }
+}
+
+
+/* -----------------------------------------------------
+   CHG / DSG / ATS MANUAL — CONFIRMARE SI ANULARE
+   ----------------------------------------------------- */
+
+let comenziInAsteptare = {};
+let temporizatoareComanda = {};
+
+function configuratieComandaSlider(tip) {
+  if (tip === "chg") {
+    return {
+      sliderId: "chg-slider",
+      statusId: "status-chg",
+      valoareId: "val-chg",
+      confirmaId: "confirma-chg",
+      anuleazaId: "anuleaza-chg",
+      feed: FEED_CHG,
+      valoareCurenta: () => valoareCHG,
+      eticheta: "CHG"
+    };
+  }
+
+  if (tip === "dsg") {
+    return {
+      sliderId: "dsg-slider",
+      statusId: "status-dsg",
+      valoareId: "val-dsg",
+      confirmaId: "confirma-dsg",
+      anuleazaId: "anuleaza-dsg",
+      feed: FEED_DSG,
+      valoareCurenta: () => valoareDSG,
+      eticheta: "DSG"
+    };
+  }
+
+  if (tip === "ats_manual") {
+    return {
+      sliderId: "ats-manual-slider",
+      statusId: "status-ats-manual",
+      valoareId: "val-ats-manual",
+      confirmaId: "confirma-ats-manual",
+      anuleazaId: "anuleaza-ats-manual",
+      feed: FEED_ATS_MANUAL,
+      valoareCurenta: () => valoareATSManual,
+      eticheta: "ATS MANUAL"
+    };
+  }
+
+  return null;
+}
+
+
+function afiseazaValoareSlider(tip, valoare) {
+  const cfg = configuratieComandaSlider(tip);
+
+  if (!cfg) return;
+
+  const valoareEl =
+    document.getElementById(cfg.valoareId);
+
+  if (!valoareEl) return;
+
+  if (tip === "ats_manual") {
+    valoareEl.textContent =
+      Number(valoare) === 1 ? "REȚEA" : "AUTO";
+  } else {
+    valoareEl.textContent =
+      Number(valoare) === 1 ? "PORNIT" : "OPRIT";
+  }
+}
+
+
+function pregatesteComandaSlider(tip) {
+  const cfg = configuratieComandaSlider(tip);
+
+  if (!cfg) return;
+
+  const slider =
+    document.getElementById(cfg.sliderId);
+
+  const statusEl =
+    document.getElementById(cfg.statusId);
+
+  const butonConfirma =
+    document.getElementById(cfg.confirmaId);
+
+  const butonAnuleaza =
+    document.getElementById(cfg.anuleazaId);
+
+  if (!slider || !butonConfirma || !butonAnuleaza) {
+    console.error("Control negăsit pentru:", tip);
+    return;
+  }
+
+  // Memorăm alegerea locală. Nu trimitem comanda.
+  comenziInAsteptare[tip] = Number(slider.value);
+
+  afiseazaValoareSlider(tip, comenziInAsteptare[tip]);
+
+  if (statusEl) {
+    statusEl.textContent =
+      "Alegere nestrimisă — confirmă sau anulează (30 s)";
+    statusEl.style.color = "#ffaa00";
+  }
+
+  butonConfirma.style.display = "inline-block";
+  butonAnuleaza.style.display = "inline-block";
+
+  // O nouă alegere pornește din nou intervalul de 30 s.
+  clearTimeout(temporizatoareComanda[tip]);
+
+  temporizatoareComanda[tip] = setTimeout(() => {
+    anuleazaComandaSlider(tip, true);
+  }, 30000);
+}
+
+
+function anuleazaComandaSlider(tip, expirata = false) {
+  const cfg = configuratieComandaSlider(tip);
+
+  if (!cfg) return;
+
+  // Dacă nu mai există o alegere, nu facem nimic.
+  if (!Object.prototype.hasOwnProperty.call(
+    comenziInAsteptare, tip
+  )) {
+    return;
+  }
+
+  clearTimeout(temporizatoareComanda[tip]);
+  delete temporizatoareComanda[tip];
+  delete comenziInAsteptare[tip];
+
+  const slider =
+    document.getElementById(cfg.sliderId);
+
+  const statusEl =
+    document.getElementById(cfg.statusId);
+
+  const butonConfirma =
+    document.getElementById(cfg.confirmaId);
+
+  const butonAnuleaza =
+    document.getElementById(cfg.anuleazaId);
+
+  // Revenim la ultima valoare cunoscută din Worker.
+  const valoare = Number(cfg.valoareCurenta());
+
+  if (slider && Number.isFinite(valoare)) {
+    slider.value = valoare;
+    slider.disabled = false;
+  }
+
+  if (Number.isFinite(valoare)) {
+    afiseazaValoareSlider(tip, valoare);
+  }
+
+  if (butonConfirma) {
+    butonConfirma.style.display = "none";
+    butonConfirma.disabled = false;
+  }
+
+  if (butonAnuleaza) {
+    butonAnuleaza.style.display = "none";
+  }
+
+  if (statusEl) {
+    statusEl.textContent = expirata
+      ? "Alegere expirată — comanda NU a fost trimisă"
+      : "Alegere anulată — comanda NU a fost trimisă";
+
+    statusEl.style.color = "#aaaaaa";
+  }
+}
+
+
+async function confirmaComandaSlider(tip) {
+  if (!Object.prototype.hasOwnProperty.call(
+    comenziInAsteptare, tip
+  )) {
+    return;
+  }
+
+  const cfg = configuratieComandaSlider(tip);
+
+  if (!cfg) return;
+
+  const slider =
+    document.getElementById(cfg.sliderId);
+
+  const statusEl =
+    document.getElementById(cfg.statusId);
+
+  const valoareEl =
+    document.getElementById(cfg.valoareId);
+
+  const butonConfirma =
+    document.getElementById(cfg.confirmaId);
+
+  const butonAnuleaza =
+    document.getElementById(cfg.anuleazaId);
+
+  if (!slider) {
+    console.error("Slider negăsit:", tip);
+    return;
+  }
+
+  // Salvăm valoarea înainte de a șterge alegerea.
+  const valoare = comenziInAsteptare[tip];
+
+  clearTimeout(temporizatoareComanda[tip]);
+  delete temporizatoareComanda[tip];
+  delete comenziInAsteptare[tip];
+
+  if (butonConfirma) {
+    butonConfirma.style.display = "none";
+    butonConfirma.disabled = true;
+  }
+
+  if (butonAnuleaza) {
+    butonAnuleaza.style.display = "none";
+  }
+
+  try {
+    await trimiteComandaWorker(
+      cfg.feed,
+      valoare,
+      slider,
+      statusEl,
+      valoareEl
+    );
+  } finally {
+    if (butonConfirma) {
+      butonConfirma.disabled = false;
+    }
+  }
+}
+
+/* -----------------------------------------------------
+   AFISARE PRAG ATS
+   ----------------------------------------------------- */
+
+function afiseazaPragATS(valoare) {
+
+  const prag = Number(valoare);
+
+  const slider = document.getElementById("slider-ats-prag");
+  const valoareEl = document.getElementById("val-ats-prag");
+
+  if (slider) {
+    slider.value = prag;
+  }
+
+  if (valoareEl) {
+    valoareEl.textContent = prag + "%";
+  }
+}
+
+/* -----------------------------------------------------
+   TRIMITERE PRAG ATS
+   ----------------------------------------------------- */
+
+async function trimitePragATS() {
+
+  const slider =
+    document.getElementById(
+      "slider-ats-prag"
+    );
+
+  const statusEl =
+    document.getElementById(
+      "status-ats-prag"
+    );
+
+  const valoareEl =
+    document.getElementById(
+      "val-ats-prag"
+    );
+
+  if (!slider) {
+    return;
+  }
+
+  const valoare =
+    Number(slider.value);
+
+  await trimiteComandaWorker(
+    FEED_ATS_PRAG,
+    valoare,
+    slider,
+    statusEl,
+    valoareEl
+  );
+}
+
+
+/* -----------------------------------------------------
+   FINAL P2/P3
+   ----------------------------------------------------- */
+
+</script>
+
+</body>
+</html>
