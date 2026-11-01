@@ -2174,7 +2174,7 @@ function proceseazaATSManual(text) {
   }
 
   document.getElementById("val-ats-manual").innerText =
-    valoareATSManual === 1 ? "REȚEA" : "AUTO";
+    valoareATSManual === 1 ? "REȚEA" : "SOLAR";
 
   document.getElementById("status-ats-manual").innerText =
     "Confirmat Worker";
@@ -2190,56 +2190,68 @@ function proceseazaATSManual(text) {
 
 function proceseazaStareATS(text) {
 
-  const stare =
-    text.toUpperCase();
+  const cod = String(text).trim();
+  let eticheta = "";
+  let scurta = "";
+  let culoare = "#FF9800";
 
+  switch (cod) {
+    case "0":
+      eticheta = "☀️ SOLAR · SOC";
+      scurta = "SOLAR / SOC";
+      culoare = "#00E676";
+      break;
+
+    case "1":
+      eticheta = "🔌 REȚEA · SOC";
+      scurta = "REȚEA / SOC";
+      culoare = "#4CAF50";
+      break;
+
+    case "2":
+      eticheta = "☀️ SOLAR · MANUAL";
+      scurta = "SOLAR / MANUAL";
+      culoare = "#00E676";
+      break;
+
+    case "3":
+      eticheta = "🔌 REȚEA · MANUAL";
+      scurta = "REȚEA / MANUAL";
+      culoare = "#4CAF50";
+      break;
+
+    case "SOLAR":
+      eticheta = "☀️ SOLAR";
+      scurta = "SOLAR";
+      culoare = "#00E676";
+      break;
+
+    case "RETEA":
+    case "REȚEA":
+      eticheta = "🔌 REȚEA";
+      scurta = "REȚEA";
+      culoare = "#4CAF50";
+      break;
+
+    default:
+      eticheta = "STARE NECUNOSCUTĂ: " + cod;
+      scurta = cod;
+  }
 
   const stareElement =
-    document.getElementById(
-      "ats-state-value"
-    );
+    document.getElementById("ats-state-value");
 
-
-  if (
-    stare === "SOLAR"
-  ) {
-
-    stareElement.innerText =
-      "☀️ SOLAR";
-
-    stareElement.style.color =
-      "#00E676";
-
+  if (stareElement) {
+    stareElement.innerText = eticheta;
+    stareElement.style.color = culoare;
   }
 
-  else if (
-    stare === "RETEA"
-  ) {
+  const metaAts =
+    document.getElementById("meta-ats");
 
-    stareElement.innerText =
-      "🔌 RETEA";
-
-    stareElement.style.color =
-      "#4CAF50";
-
+  if (metaAts) {
+    metaAts.innerText = scurta;
   }
-
-  else {
-
-    stareElement.innerText =
-      stare;
-
-    stareElement.style.color =
-      "#FF9800";
-
-  }
-
-
-  document.getElementById(
-    "meta-ats"
-  ).innerText =
-    stare;
-
 }
 
 
@@ -2606,31 +2618,6 @@ function proceseazaBMS(text) {
       }
 
     }
-
-
-    /* ===================================================
-       ATS
-       =================================================== */
-
-    if (
-      bms.ats !== undefined &&
-      bms.ats !== "BOOT"
-    ) {
-
-      const metaAts =
-        document.getElementById(
-          "meta-ats"
-        );
-
-      if (metaAts) {
-
-        metaAts.innerText =
-          bms.ats;
-
-      }
-
-    }
-
 
     /* ===================================================
        BLUETOOTH
